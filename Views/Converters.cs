@@ -1,4 +1,5 @@
 using System.Globalization;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
@@ -42,6 +43,18 @@ public class BoolToSidebarWidthConverter : IValueConverter
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         => value is true ? new GridLength(264) : new GridLength(0);
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+/// <summary>true → right inset so conversation clears the floating card, false → none.</summary>
+public class BoolToConversationInsetConverter : IValueConverter
+{
+    public static readonly BoolToConversationInsetConverter Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is true ? new Thickness(0, 4, 284, 8) : new Thickness(0, 4, 0, 8);
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();

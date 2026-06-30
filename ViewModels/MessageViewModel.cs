@@ -22,7 +22,7 @@ public class MessageViewModel : ViewModelBase
             OutputFiles.Add(new OutputFileViewModel(f));
 
         foreach (var f in message.AttachedFilePaths)
-            AttachedNames.Add(System.IO.Path.GetFileName(f));
+            Attachments.Add(new AttachmentViewModel(f));
     }
 
     private readonly Action<string>? _openPreview;
@@ -39,8 +39,8 @@ public class MessageViewModel : ViewModelBase
 
     public bool HasSkillChips => SkillNames.Count > 0;
 
-    public ObservableCollection<string> AttachedNames { get; } = new();
-    public bool HasAttachments => AttachedNames.Count > 0;
+    public ObservableCollection<AttachmentViewModel> Attachments { get; } = new();
+    public bool HasAttachments => Attachments.Count > 0;
 
     public RelayCommand PreviewCommand => new(p =>
     {

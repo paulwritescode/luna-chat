@@ -94,6 +94,17 @@ public class ChatViewModel : ViewModelBase
 
     public RelayCommand ClosePreviewCommand => new(_ => IsPreviewOpen = false);
 
+    /// <summary>Just the output folder name (not the full path) for the floating card.</summary>
+    public string OutputFolderName
+    {
+        get
+        {
+            var p = _app.OutputFolderPath;
+            if (string.IsNullOrWhiteSpace(p)) return "—";
+            return System.IO.Path.GetFileName(System.IO.Path.TrimEndingDirectorySeparator(p));
+        }
+    }
+
     public void OpenPreview(string path)
     {
         Preview = new PreviewViewModel(path);
@@ -312,12 +323,12 @@ public class ChatViewModel : ViewModelBase
 
         try
         {
-            // Full context (skills + history + attachments) goes via stdin;
-            // the current message is the headless prompt argument.
-            var context = _app.PromptBuilder.Build(session, text, attachmentPaths);
+            // The full assembled prompt (skills + history + attachments + task)
+            // is passed as the headless chat argument.
+            var prompt = _app.PromptBuilder.Build(session, text, attachmentPaths);
             var runner = new KiroRunner(_app.KiroBinaryPath);
 
-            await foreach (var line in runner.RunAsync(text, context, outputFolder, _app.RunCts.Token))
+            await foreach (var line in runner.RunAsync(prompt, outputFolder, _app.RunCts.Token))
             {
                 if (ShouldSkipLine(line)) continue;
                 var clean = CleanLine(line);

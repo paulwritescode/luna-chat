@@ -69,13 +69,11 @@ public class KiroRunner
 
     /// <summary>
     /// Runs a prompt headlessly, streaming stdout lines as they arrive.
-    /// <paramref name="prompt"/> is passed as the chat argument; <paramref name="stdinContext"/>
-    /// (skills + history + attachments) is piped through stdin.
+    /// The full assembled prompt is passed as the chat argument.
     /// Throws <see cref="KiroProcessException"/> on a non-zero exit.
     /// </summary>
     public async IAsyncEnumerable<string> RunAsync(
         string prompt,
-        string stdinContext,
         string workingDir,
         [EnumeratorCancellation] CancellationToken ct = default)
     {
@@ -85,7 +83,6 @@ public class KiroRunner
         var psi = new ProcessStartInfo
         {
             FileName = _binary,
-            RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -111,18 +108,6 @@ public class KiroRunner
             while ((line = await proc.StandardError.ReadLineAsync(ct)) != null)
                 stderr.AppendLine(line);
         }, ct);
-
-        // Pipe context via stdin, then close it so kiro proceeds.
-        try
-        {
-            if (!string.IsNullOrEmpty(stdinContext))
-                await proc.StandardInput.WriteAsync(stdinContext.AsMemory(), ct);
-            proc.StandardInput.Close();
-        }
-        catch
-        {
-            // If the process doesn't accept stdin, continue regardless.
-        }
 
         var reader = proc.StandardOutput;
         string? outLine;

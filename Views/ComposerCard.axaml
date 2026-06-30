@@ -10,6 +10,7 @@
 
     <Border Name="CardRoot" Background="{DynamicResource BgComposer}"
             BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1"
+            HorizontalAlignment="Stretch"
             CornerRadius="22" Padding="8" PointerPressed="OnCardPressed">
         <StackPanel Spacing="6">
 
@@ -51,6 +52,7 @@
                                     </Border>
                                     <!-- remove (X) -->
                                     <Button Classes="iconbtn" Width="22" Height="22"
+                                            IsVisible="{Binding ShowRemove}"
                                             HorizontalAlignment="Right" VerticalAlignment="Top"
                                             Margin="0,4,4,0" Background="#99000000"
                                             Command="{Binding RemoveCommand}" ToolTip.Tip="Remove">
@@ -82,8 +84,16 @@
 
             <!-- footer: attach + skill chips + send -->
             <Grid ColumnDefinitions="Auto,*,Auto">
-                <Button Grid.Column="0" Classes="iconbtn" Command="{Binding AttachFileCommand}"
-                        VerticalAlignment="Bottom" ToolTip.Tip="Attach file (max 3)">
+                <Button Grid.Column="0" Classes="iconbtn" VerticalAlignment="Bottom" ToolTip.Tip="Add">
+                    <Button.Flyout>
+                        <MenuFlyout Placement="TopEdgeAlignedLeft">
+                            <MenuItem Header="Files and folders" Command="{Binding AttachFileCommand}">
+                                <MenuItem.Icon>
+                                    <Path Classes="ico" Width="15" Height="15" Data="{StaticResource IcoFile}"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
                     <Path Classes="ico" Data="{StaticResource IcoPlus}"/>
                 </Button>
 

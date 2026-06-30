@@ -12,9 +12,9 @@ public class AttachmentViewModel : ViewModelBase
 {
     private static readonly string[] ImageExt = { ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp" };
 
-    private readonly Action<AttachmentViewModel> _onRemove;
+    private readonly Action<AttachmentViewModel>? _onRemove;
 
-    public AttachmentViewModel(string path, Action<AttachmentViewModel> onRemove)
+    public AttachmentViewModel(string path, Action<AttachmentViewModel>? onRemove = null)
     {
         FullPath = path;
         _onRemove = onRemove;
@@ -27,6 +27,9 @@ public class AttachmentViewModel : ViewModelBase
         if (IsImage) TryLoadImageThumb(path);
         else if (IsPdf) Thumbnail = PdfThumbnailer.RenderPage(path, 0, decodeWidth: 220);
     }
+
+    /// <summary>Whether the remove (X) affordance is shown (composer = yes, message = no).</summary>
+    public bool ShowRemove => _onRemove != null;
 
     public string FullPath { get; }
 
@@ -57,7 +60,7 @@ public class AttachmentViewModel : ViewModelBase
 
     public bool HasThumbnail => _thumbnail != null;
 
-    public RelayCommand RemoveCommand => new(_ => _onRemove(this));
+    public RelayCommand RemoveCommand => new(_ => _onRemove?.Invoke(this));
 
     private void TryLoadImageThumb(string path)
     {

@@ -60,28 +60,18 @@ public class PromptBuilder
         sb.AppendLine();
         sb.AppendLine(currentMessage);
 
-        // Attached files
+        // Attached files — pass paths so kiro can read them with its own tools
+        // (works for PDFs, images, and large files without inlining bytes).
         var paths = attachedFilePaths?.ToList() ?? new List<string>();
         if (paths.Count > 0)
         {
             sb.AppendLine();
             sb.AppendLine("## Attached Files");
             sb.AppendLine();
+            sb.AppendLine("The user attached the following files. Read them with your file tools as needed:");
             foreach (var path in paths)
-            {
-                sb.AppendLine($"### {Path.GetFileName(path)}");
-                sb.AppendLine("```");
-                try
-                {
-                    sb.AppendLine(File.ReadAllText(path));
-                }
-                catch (Exception ex)
-                {
-                    sb.AppendLine($"[could not read file: {ex.Message}]");
-                }
-                sb.AppendLine("```");
-                sb.AppendLine();
-            }
+                sb.AppendLine($"- {path}");
+            sb.AppendLine();
         }
 
         return sb.ToString();

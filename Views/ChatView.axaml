@@ -36,7 +36,8 @@
 
                 <!-- with messages -->
                 <Grid IsVisible="{Binding HasMessages}" RowDefinitions="*,Auto">
-                    <ScrollViewer Grid.Row="0" Name="MessageScroll" Padding="0,4,0,8">
+                    <ScrollViewer Grid.Row="0" Name="MessageScroll"
+                                  Padding="{Binding ShowSessionCard, Converter={x:Static views:BoolToConversationInsetConverter.Instance}}">
                         <ItemsControl ItemsSource="{Binding Messages}"
                                       MaxWidth="768" HorizontalAlignment="Center" Margin="24,8">
                             <ItemsControl.ItemTemplate>
@@ -46,25 +47,40 @@
                                         <!-- user bubble -->
                                         <StackPanel IsVisible="{Binding IsUser}" HorizontalAlignment="Right"
                                                     MaxWidth="560" Spacing="6">
-                                            <ItemsControl ItemsSource="{Binding AttachedNames}"
+                                            <ItemsControl ItemsSource="{Binding Attachments}"
                                                           IsVisible="{Binding HasAttachments}"
                                                           HorizontalAlignment="Right">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Horizontal" Spacing="6"/>
+                                                        <StackPanel Orientation="Horizontal" Spacing="8"/>
                                                     </ItemsPanelTemplate>
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
-                                                    <DataTemplate x:DataType="x:String">
-                                                        <Border Background="{DynamicResource BgChip}"
-                                                                BorderBrush="{DynamicResource BorderDefault}"
-                                                                BorderThickness="1" CornerRadius="8" Padding="8,4">
-                                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                <Path Classes="ico" Width="12" Height="12" Data="{StaticResource IcoFile}"/>
-                                                                <TextBlock Text="{Binding}" FontSize="12"
-                                                                           Foreground="{DynamicResource TextSecondary}"/>
-                                                            </StackPanel>
-                                                        </Border>
+                                                    <DataTemplate x:DataType="vm:AttachmentViewModel">
+                                                        <StackPanel Width="92" Spacing="4">
+                                                            <Border Width="92" Height="116" CornerRadius="12" ClipToBounds="True"
+                                                                    Background="{DynamicResource BgElevated}"
+                                                                    BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1">
+                                                                <Panel>
+                                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                                           IsVisible="{Binding HasThumbnail}"/>
+                                                                    <StackPanel IsVisible="{Binding IsDocument}"
+                                                                                VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
+                                                                        <Path Classes="ico" Width="26" Height="26"
+                                                                              Data="{StaticResource IcoFile}" HorizontalAlignment="Center"/>
+                                                                        <Border Background="{DynamicResource Accent}" CornerRadius="4"
+                                                                                Padding="6,1" HorizontalAlignment="Center">
+                                                                            <TextBlock Text="{Binding Ext}" FontSize="10"
+                                                                                       FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                                                        </Border>
+                                                                    </StackPanel>
+                                                                </Panel>
+                                                            </Border>
+                                                            <TextBlock Text="{Binding FileName}" FontSize="11"
+                                                                       TextTrimming="CharacterEllipsis" TextAlignment="Center"
+                                                                       MaxWidth="92"
+                                                                       Foreground="{DynamicResource TextSecondary}"/>
+                                                        </StackPanel>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
@@ -142,7 +158,9 @@
                     </ScrollViewer>
 
                     <Border Grid.Row="1" Padding="24,4,24,18">
-                        <views:ComposerCard MaxWidth="768" HorizontalAlignment="Center"/>
+                        <Grid HorizontalAlignment="Center" MaxWidth="768">
+                            <views:ComposerCard/>
+                        </Grid>
                     </Border>
                 </Grid>
 
@@ -211,8 +229,8 @@
                         <StackPanel Spacing="8">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFolder}"/>
-                                <TextBlock Text="{Binding App.OutputFolderPath}" FontSize="12" Classes="mono"
-                                           TextTrimming="CharacterEllipsis"
+                                <TextBlock Text="{Binding OutputFolderName}" FontSize="12" Classes="mono"
+                                           TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextSecondary}"/>
                             </StackPanel>
                             <Button Classes="flat" Content="Open output folder" HorizontalAlignment="Left"
