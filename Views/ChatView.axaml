@@ -1,0 +1,258 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LunaChat.ViewModels"
+             xmlns:views="using:LunaChat.Views"
+             xmlns:ctl="using:LunaChat.Controls"
+             mc:Ignorable="d" d:DesignWidth="980" d:DesignHeight="740"
+             x:Class="LunaChat.Views.ChatView"
+             x:DataType="vm:ChatViewModel">
+
+    <Grid Name="ChatRoot" RowDefinitions="48,*">
+
+        <!-- ===== header ===== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="20,0">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                <Path Classes="ico" Width="16" Height="16" Data="{StaticResource IcoFile}"/>
+                <TextBlock Text="{Binding SessionTitle}" FontSize="14" FontWeight="Medium"
+                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource TextPrimary}"/>
+                <TextBlock Text="…" FontSize="16" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextSecondary}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ===== body ===== -->
+        <Grid Grid.Row="1" Name="BodyGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="0" MinWidth="0"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- conversation column -->
+            <Panel Grid.Column="0">
+
+                <!-- with messages -->
+                <Grid IsVisible="{Binding HasMessages}" RowDefinitions="*,Auto">
+                    <ScrollViewer Grid.Row="0" Name="MessageScroll" Padding="0,4,0,8">
+                        <ItemsControl ItemsSource="{Binding Messages}"
+                                      MaxWidth="768" HorizontalAlignment="Center" Margin="24,8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:MessageViewModel">
+                                    <StackPanel Margin="0,8">
+
+                                        <!-- user bubble -->
+                                        <StackPanel IsVisible="{Binding IsUser}" HorizontalAlignment="Right"
+                                                    MaxWidth="560" Spacing="6">
+                                            <ItemsControl ItemsSource="{Binding AttachedNames}"
+                                                          IsVisible="{Binding HasAttachments}"
+                                                          HorizontalAlignment="Right">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="6"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="x:String">
+                                                        <Border Background="{DynamicResource BgChip}"
+                                                                BorderBrush="{DynamicResource BorderDefault}"
+                                                                BorderThickness="1" CornerRadius="8" Padding="8,4">
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <Path Classes="ico" Width="12" Height="12" Data="{StaticResource IcoFile}"/>
+                                                                <TextBlock Text="{Binding}" FontSize="12"
+                                                                           Foreground="{DynamicResource TextSecondary}"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <Border Background="{DynamicResource BgComposer}"
+                                                    CornerRadius="18" Padding="15,11" HorizontalAlignment="Right">
+                                                <SelectableTextBlock Text="{Binding Content}" TextWrapping="Wrap"
+                                                                     FontSize="14"
+                                                                     Foreground="{DynamicResource TextPrimary}"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- assistant block -->
+                                        <StackPanel IsVisible="{Binding !IsUser}" Spacing="9">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock Text="{Binding RoleLabel}" FontSize="12.5"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource TextSecondary}"/>
+                                                <TextBlock Text="{Binding TimeText}" FontSize="12"
+                                                           Foreground="{DynamicResource TextTertiary}"/>
+                                            </StackPanel>
+
+                                            <ctl:MarkdownBlock Markdown="{Binding Content}"/>
+
+                                            <!-- output file cards -->
+                                            <ItemsControl ItemsSource="{Binding OutputFiles}" IsVisible="{Binding HasOutputs}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:OutputFileViewModel">
+                                                        <Border Background="{DynamicResource BgElevated}"
+                                                                BorderBrush="{DynamicResource BorderDefault}"
+                                                                BorderThickness="1" CornerRadius="12"
+                                                                Padding="12" Margin="0,4,0,0">
+                                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                                <Border Grid.Column="0" Width="36" Height="36"
+                                                                        CornerRadius="9"
+                                                                        Background="{DynamicResource BgComposer}">
+                                                                    <Path Classes="ico" Width="18" Height="18"
+                                                                          Data="{StaticResource IcoFile}"
+                                                                          HorizontalAlignment="Center"/>
+                                                                </Border>
+                                                                <StackPanel Grid.Column="1" Margin="12,0"
+                                                                            VerticalAlignment="Center">
+                                                                    <TextBlock Text="{Binding FileName}"
+                                                                               FontSize="13.5" FontWeight="Medium"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               Foreground="{DynamicResource TextPrimary}"/>
+                                                                    <TextBlock Text="{Binding Subtitle}" FontSize="12"
+                                                                               Foreground="{DynamicResource TextTertiary}"/>
+                                                                </StackPanel>
+                                                                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                                            Spacing="6" VerticalAlignment="Center">
+                                                                    <Button Classes="ghost" Height="30" Content="Open in"
+                                                                            Command="{Binding $parent[ItemsControl].((vm:MessageViewModel)DataContext).PreviewCommand}"
+                                                                            CommandParameter="{Binding FullPath}"/>
+                                                                    <Button Classes="ghost" Height="30" Content="Reveal"
+                                                                            Command="{Binding RevealCommand}"/>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- action row -->
+                                            <StackPanel Orientation="Horizontal" Spacing="2" Margin="-6,2,0,0">
+                                                <Button Classes="iconbtn" Width="28" Height="28"
+                                                        Command="{Binding CopyCommand}" ToolTip.Tip="Copy">
+                                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFile}"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <Border Grid.Row="1" Padding="24,4,24,18">
+                        <views:ComposerCard MaxWidth="768" HorizontalAlignment="Center"/>
+                    </Border>
+                </Grid>
+
+                <!-- empty state -->
+                <StackPanel IsVisible="{Binding IsEmptyState}"
+                            VerticalAlignment="Center" HorizontalAlignment="Center"
+                            MaxWidth="720" Width="720" Spacing="26" Margin="24,0,24,40">
+                    <TextBlock Text="{Binding GreetingText}" FontSize="26" FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextPrimary}"/>
+                    <views:ComposerCard/>
+                </StackPanel>
+            </Panel>
+
+            <!-- splitter -->
+            <GridSplitter Grid.Column="1" Width="5" ResizeDirection="Columns"
+                          Background="Transparent" IsVisible="{Binding ShowRightPanel}"/>
+
+            <!-- right panel: preview or session -->
+            <Border Grid.Column="2" IsVisible="{Binding ShowRightPanel}"
+                    Background="{DynamicResource BgApp}"
+                    BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1,0,0,0">
+                <Panel>
+
+                    <!-- preview -->
+                    <Grid IsVisible="{Binding IsPreviewOpen}" RowDefinitions="48,*">
+                      <Grid RowDefinitions="48,*" DataContext="{Binding Preview}">
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="14,0">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <Path Classes="ico" Width="15" Height="15" Data="{StaticResource IcoFile}"/>
+                                <TextBlock Text="{Binding FileName}" FontSize="13.5" FontWeight="Medium"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           Foreground="{DynamicResource TextPrimary}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                <Button Classes="iconbtn" Command="{Binding OpenExternalCommand}" ToolTip.Tip="Open externally">
+                                    <Path Classes="ico" Width="15" Height="15" Data="{StaticResource IcoExternal}"/>
+                                </Button>
+                                <Button Classes="iconbtn"
+                                        Command="{Binding $parent[views:ChatView].((vm:ChatViewModel)DataContext).ClosePreviewCommand}"
+                                        ToolTip.Tip="Close preview">
+                                    <Path Classes="ico" Width="15" Height="15" Data="{StaticResource IcoX}"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <ScrollViewer Grid.Row="1" Padding="20,8,20,20">
+                            <Panel>
+                                <Image Source="{Binding Image}" Stretch="Uniform"
+                                       HorizontalAlignment="Center" VerticalAlignment="Top"
+                                       IsVisible="{Binding IsImage}"/>
+                                <ctl:MarkdownBlock Markdown="{Binding TextContent}"
+                                                   IsVisible="{Binding IsMarkdown}"/>
+                                <SelectableTextBlock Text="{Binding TextContent}" TextWrapping="Wrap"
+                                                     FontFamily="{DynamicResource MonoFont}" FontSize="12.5"
+                                                     IsVisible="{Binding IsText}"
+                                                     Foreground="{DynamicResource TextPrimary}"/>
+                            </Panel>
+                        </ScrollViewer>
+                      </Grid>
+                    </Grid>
+
+                    <!-- session panel -->
+                    <ScrollViewer IsVisible="{Binding ShowSessionPanel}" Padding="16,14">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Session" Classes="section"/>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Active skills" FontSize="12"
+                                           Foreground="{DynamicResource TextTertiary}"/>
+                                <ItemsControl ItemsSource="{Binding ActiveSkillChips}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:SkillChipViewModel">
+                                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,1"
+                                                        IsVisible="{Binding IsActive}">
+                                                <Path Classes="ico" Width="14" Height="14"
+                                                      Data="{StaticResource IcoSparkle}"
+                                                      Stroke="{DynamicResource Accent}"/>
+                                                <TextBlock Text="{Binding Name}" FontSize="13"
+                                                           Foreground="{DynamicResource TextPrimary}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{Binding ActiveSkillSummary}" FontSize="12"
+                                           Foreground="{DynamicResource TextTertiary}"/>
+                            </StackPanel>
+
+                            <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
+
+                            <StackPanel Spacing="8">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFolder}"/>
+                                    <TextBlock Text="{Binding App.InputFolderPath}" FontSize="12" Classes="mono"
+                                               TextTrimming="CharacterEllipsis"
+                                               Foreground="{DynamicResource TextSecondary}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFolder}"/>
+                                    <TextBlock Text="{Binding App.OutputFolderPath}" FontSize="12" Classes="mono"
+                                               TextTrimming="CharacterEllipsis"
+                                               Foreground="{DynamicResource TextSecondary}"/>
+                                </StackPanel>
+                                <Button Classes="flat" Content="Open output folder" HorizontalAlignment="Left"
+                                        Command="{Binding OpenOutputFolderCommand}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Panel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

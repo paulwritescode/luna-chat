@@ -1,0 +1,210 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:LunaChat.ViewModels"
+        xmlns:views="using:LunaChat.Views"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="750"
+        x:Class="LunaChat.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="luna-chat"
+        Width="1180" Height="780"
+        MinWidth="900" MinHeight="600"
+        Background="{DynamicResource BgApp}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0">
+
+    <LayoutTransformControl Name="ZoomRoot">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding IsSidebarVisible, Converter={x:Static views:BoolToSidebarWidthConverter.Instance}}"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ============ SIDEBAR ============ -->
+        <Border Grid.Column="0" Background="{DynamicResource BgSidebar}"
+                IsVisible="{Binding IsSidebarVisible}"
+                BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,0,1,0"
+                ClipToBounds="True">
+            <Grid RowDefinitions="44,Auto,Auto,Auto,*,Auto" MinWidth="263">
+
+                <!-- top toolbar -->
+                <Grid Grid.Row="0" Name="SidebarTop" ColumnDefinitions="Auto,Auto,Auto,*">
+                    <Button Grid.Column="0" Name="CollapseButton" Classes="iconbtn"
+                            Command="{Binding ToggleSidebarCommand}" ToolTip.Tip="Collapse sidebar">
+                        <Path Classes="ico" Data="{StaticResource IcoPanel}"/>
+                    </Button>
+                    <Button Grid.Column="1" Classes="iconbtn" ToolTip.Tip="Back">
+                        <Path Classes="ico" Data="{StaticResource IcoArrowLeft}"/>
+                    </Button>
+                    <Button Grid.Column="2" Classes="iconbtn" ToolTip.Tip="Forward">
+                        <Path Classes="ico" Data="{StaticResource IcoArrowRight}" Opacity="0.4"/>
+                    </Button>
+                </Grid>
+
+                <!-- nav -->
+                <StackPanel Grid.Row="1" Margin="0,4,0,0">
+                    <Button Classes="nav" Classes.active="{Binding IsChatRoute}"
+                            Command="{Binding NewSessionCommand}">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <Path Grid.Column="0" Classes="ico" Data="{StaticResource IcoCompose}" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="1" Text="New session" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="⌘N" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextTertiary}"/>
+                        </Grid>
+                    </Button>
+                    <Button Classes="nav" Command="{Binding ToggleSearchCommand}">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Path Grid.Column="0" Classes="ico" Data="{StaticResource IcoSearch}" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="1" Text="Search" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+                    <Button Classes="nav" Classes.active="{Binding IsFilesRoute}"
+                            Command="{Binding NavFilesCommand}">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Path Grid.Column="0" Classes="ico" Data="{StaticResource IcoFolder}" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="1" Text="Files" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+                    <Button Classes="nav" Classes.active="{Binding IsSettingsRoute}"
+                            Command="{Binding NavSettingsCommand}">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Path Grid.Column="0" Classes="ico" Data="{StaticResource IcoSettings}" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="1" Text="Settings" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+                </StackPanel>
+
+                <!-- search box -->
+                <Border Grid.Row="2" Margin="12,6,12,0" IsVisible="{Binding IsSearchVisible}">
+                    <TextBox Text="{Binding SearchText, Mode=TwoWay}"
+                             PlaceholderText="Search sessions" Height="34" Padding="10,0"
+                             VerticalContentAlignment="Center"/>
+                </Border>
+
+                <!-- section label -->
+                <TextBlock Grid.Row="3" Classes="section" Text="Sessions" Margin="20,16,16,6"/>
+
+                <!-- session list -->
+                <ScrollViewer Grid.Row="4">
+                    <ItemsControl ItemsSource="{Binding SessionItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SessionListItemViewModel">
+                                <Button Classes="session" Classes.active="{Binding IsActive}"
+                                        Command="{Binding $parent[ItemsControl].((vm:MainWindowViewModel)DataContext).SelectSessionCommand}"
+                                        CommandParameter="{Binding}"
+                                        ToolTip.Tip="{Binding Name}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextPrimary}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding DateBadge}"
+                                                   VerticalAlignment="Center" FontSize="11.5"
+                                                   Foreground="{DynamicResource TextTertiary}"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- bottom: status + theme toggle -->
+                <Border Grid.Row="5" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0"
+                        Padding="12,8">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Button Grid.Column="0" Grid.ColumnSpan="2" Classes="nav" Margin="0"
+                                Command="{Binding ToggleKiroPopoverCommand}" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                                <Panel Width="14" Height="14" VerticalAlignment="Center">
+                                    <Ellipse Width="14" Height="14"
+                                             IsVisible="{Binding App.IsKiroReady}"
+                                             Fill="#3319C37D"/>
+                                    <Path Width="12" Height="12" Stretch="Uniform"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          Data="{StaticResource IcoDot}"
+                                          Fill="{Binding App.IsKiroReady, Converter={x:Static views:BoolToStatusBrushConverter.Instance}}"/>
+                                </Panel>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding App.KiroStatusText}" FontSize="13"
+                                               Foreground="{DynamicResource TextPrimary}"/>
+                                    <TextBlock Text="{Binding App.KiroVersion}" FontSize="11"
+                                               Foreground="{DynamicResource TextTertiary}"
+                                               TextTrimming="CharacterEllipsis"
+                                               IsVisible="{Binding App.IsKiroReady}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2" Classes="iconbtn"
+                                Command="{Binding ToggleThemeCommand}" ToolTip.Tip="Toggle theme">
+                            <Panel>
+                                <Path Classes="ico" Data="{StaticResource IcoSun}"
+                                      IsVisible="{Binding IsDarkTheme}"/>
+                                <Path Classes="ico" Data="{StaticResource IcoMoon}"
+                                      IsVisible="{Binding !IsDarkTheme}"/>
+                            </Panel>
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ============ MAIN ============ -->
+        <Panel Grid.Column="1" Background="{DynamicResource BgApp}">
+            <Grid RowDefinitions="44,*">
+
+                <!-- main top strip -->
+                <Grid Grid.Row="0" Name="MainTop" ColumnDefinitions="Auto,*,Auto">
+                    <Button Grid.Column="0" Classes="iconbtn" Margin="12,0,0,0"
+                            IsVisible="{Binding IsSidebarCollapsed}"
+                            Command="{Binding ToggleSidebarCommand}" ToolTip.Tip="Expand sidebar">
+                        <Path Classes="ico" Data="{StaticResource IcoPanel}"/>
+                    </Button>
+                    <StackPanel Grid.Column="2" Name="WindowControls" Orientation="Horizontal"
+                                Spacing="14" Margin="0,0,18,0" VerticalAlignment="Center">
+                        <Button Name="MinButton" Classes="wctl" Background="#FEBC2E"/>
+                        <Button Name="MaxButton" Classes="wctl" Background="#28C840"/>
+                        <Button Name="CloseButton" Classes="wctl" Background="#FF5F57"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- kiro popover -->
+                <Border Grid.Row="1" IsVisible="{Binding KiroPopoverOpen}"
+                        HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                        Margin="16,0,0,16" ZIndex="90"
+                        Background="{DynamicResource BgElevated}"
+                        BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1"
+                        CornerRadius="10" Padding="14">
+                    <StackPanel Spacing="6" MaxWidth="320">
+                        <TextBlock Text="{Binding App.KiroBinaryPath}" Classes="mono" FontSize="12"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="{Binding App.KiroVersion}" Classes="mono" FontSize="12"
+                                   Foreground="{DynamicResource TextSecondary}"/>
+                        <Button Classes="flat" Content="Reconfigure" HorizontalAlignment="Left"
+                                Command="{Binding ReconfigureKiroCommand}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- content views -->
+                <views:ChatView Grid.Row="1" DataContext="{Binding Chat}"
+                                IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsChatRoute}"/>
+                <views:FileBrowserView Grid.Row="1" DataContext="{Binding FileBrowser}"
+                                       IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsFilesRoute}"/>
+                <views:SettingsView Grid.Row="1" DataContext="{Binding Settings}"
+                                    IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsSettingsRoute}"/>
+
+                <!-- toast -->
+                <Border Name="ToastHost" Grid.Row="1" ZIndex="100" IsVisible="False"
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                        Margin="0,0,24,24" Padding="16,12"
+                        Background="{DynamicResource BgElevated}"
+                        BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1"
+                        CornerRadius="10">
+                    <TextBlock Name="ToastText" FontSize="13"
+                               Foreground="{DynamicResource TextPrimary}"/>
+                </Border>
+            </Grid>
+        </Panel>
+    </Grid>
+    </LayoutTransformControl>
+</Window>

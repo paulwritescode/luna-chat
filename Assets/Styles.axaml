@@ -1,0 +1,239 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ===== Window ===== -->
+    <Style Selector="Window">
+        <Setter Property="Background" Value="{DynamicResource BgApp}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource UiFont}"/>
+    </Style>
+
+    <Style Selector="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource UiFont}"/>
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <!-- ===== Line icon ===== -->
+    <Style Selector="Path.ico">
+        <Setter Property="Stroke" Value="{DynamicResource IconBrush}"/>
+        <Setter Property="StrokeThickness" Value="1.7"/>
+        <Setter Property="StrokeLineCap" Value="Round"/>
+        <Setter Property="StrokeJoin" Value="Round"/>
+        <Setter Property="Fill" Value="Transparent"/>
+        <Setter Property="Width" Value="17"/>
+        <Setter Property="Height" Value="17"/>
+        <Setter Property="Stretch" Value="Uniform"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ===== Sidebar nav row ===== -->
+    <Style Selector="Button.nav">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="Margin" Value="8,1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.nav:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+    </Style>
+    <Style Selector="Button.nav.active /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BgActive}"/>
+    </Style>
+
+    <!-- ===== Sidebar session row ===== -->
+    <Style Selector="Button.session">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="Margin" Value="8,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.session:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+    </Style>
+    <Style Selector="Button.session.active /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BgActive}"/>
+    </Style>
+
+    <!-- ===== Icon-only button (toolbar) ===== -->
+    <Style Selector="Button.iconbtn">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="7"/>
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.iconbtn:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+    </Style>
+
+    <!-- ===== Skill / context chip (ToggleButton) ===== -->
+    <Style Selector="ToggleButton.skillchip">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="11,0"/>
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefault}"/>
+        <Setter Property="Background" Value="{DynamicResource BgChip}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.12"/>
+                <BrushTransition Property="Background" Duration="0:0:0.12"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="ToggleButton.skillchip:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+    </Style>
+    <Style Selector="ToggleButton.skillchip:checked">
+        <Setter Property="BorderBrush" Value="{DynamicResource SkillActiveBorder}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SkillActiveText}"/>
+    </Style>
+    <Style Selector="ToggleButton.skillchip:checked /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SkillActiveBg}"/>
+    </Style>
+
+    <!-- ===== Circular send button ===== -->
+    <Style Selector="Button.send">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Background" Value="{DynamicResource SendBg}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.send:disabled">
+        <Setter Property="Opacity" Value="0.4"/>
+    </Style>
+
+    <!-- ===== Primary (filled) button ===== -->
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{DynamicResource Accent}"/>
+        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Accent}"/>
+        <Setter Property="TextElement.Foreground" Value="#FFFFFF"/>
+    </Style>
+
+    <!-- ===== Ghost (outlined) button ===== -->
+    <Style Selector="Button.ghost">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefault}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.ghost:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+    </Style>
+
+    <!-- ===== Flat (text) button ===== -->
+    <Style Selector="Button.flat">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.flat:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+    </Style>
+
+    <!-- ===== Window control dot ===== -->
+    <Style Selector="Button.wctl">
+        <Setter Property="Width" Value="13"/>
+        <Setter Property="Height" Value="13"/>
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
+    <!-- ===== TextBox ===== -->
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="{DynamicResource BgElevated}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefault}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimary}"/>
+    </Style>
+    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderStrong}"/>
+    </Style>
+    <Style Selector="TextBox.bare">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="0"/>
+    </Style>
+    <Style Selector="TextBox.bare:focus /template/ Border#PART_BorderElement">
+        <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <!-- ===== ComboBox ===== -->
+    <Style Selector="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource BgElevated}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefault}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="MinHeight" Value="34"/>
+    </Style>
+
+    <!-- ===== Section label ===== -->
+    <Style Selector="TextBlock.section">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+    </Style>
+
+    <Style Selector="TextBlock.mono">
+        <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+    </Style>
+
+    <!-- ===== ScrollBar (thin, subtle) ===== -->
+    <Style Selector="ScrollBar:vertical">
+        <Setter Property="Width" Value="10"/>
+    </Style>
+</Styles>

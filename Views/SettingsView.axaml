@@ -1,0 +1,106 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LunaChat.ViewModels"
+             xmlns:views="using:LunaChat.Views"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="740"
+             x:Class="LunaChat.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <ScrollViewer>
+        <StackPanel MaxWidth="680" Margin="32,16,32,40" HorizontalAlignment="Center" Spacing="28">
+
+            <TextBlock Text="Settings" FontSize="22" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextPrimary}"/>
+
+            <!-- ===== kiro Configuration ===== -->
+            <StackPanel Spacing="10">
+                <TextBlock Classes="section" Text="kiro configuration"/>
+                <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
+
+                <Grid ColumnDefinitions="150,*,Auto" Margin="0,2,0,0">
+                    <TextBlock Grid.Column="0" Text="Binary path" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Text="{Binding KiroBinaryPath, Mode=TwoWay}" Height="36" Padding="10,0" VerticalContentAlignment="Center"/>
+                    <Button Grid.Column="2" Classes="ghost" Content="Browse" Margin="8,0,0,0" Command="{Binding BrowseBinaryCommand}"/>
+                </Grid>
+
+                <Grid ColumnDefinitions="150,*">
+                    <TextBlock Grid.Column="0" Text="Config file" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Text="{Binding KiroConfigPath, Mode=TwoWay}" Height="36" Padding="10,0" VerticalContentAlignment="Center"/>
+                </Grid>
+
+                <Button Classes="ghost" Content="Test connection" HorizontalAlignment="Left" Command="{Binding TestConnectionCommand}"/>
+
+                <Border Background="{DynamicResource BgElevated}" BorderBrush="{DynamicResource BorderDefault}"
+                        BorderThickness="1" CornerRadius="8" Padding="12,10"
+                        IsVisible="{Binding TestResult, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <TextBlock Text="{Binding TestResult}" Classes="mono" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{Binding TestSuccess, Converter={x:Static views:BoolToStatusColorConverter.Instance}}"/>
+                </Border>
+            </StackPanel>
+
+            <!-- ===== Folders ===== -->
+            <StackPanel Spacing="10">
+                <TextBlock Classes="section" Text="folder paths"/>
+                <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
+
+                <Grid ColumnDefinitions="150,*,Auto" Margin="0,2,0,0">
+                    <TextBlock Grid.Column="0" Text="Skills folder" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Text="{Binding SkillsFolder, Mode=TwoWay}" Height="36" Padding="10,0" VerticalContentAlignment="Center"/>
+                    <Button Grid.Column="2" Classes="ghost" Content="Browse" Margin="8,0,0,0" Command="{Binding BrowseSkillsCommand}"/>
+                </Grid>
+                <Grid ColumnDefinitions="150,*,Auto">
+                    <TextBlock Grid.Column="0" Text="Input folder" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Text="{Binding InputFolder, Mode=TwoWay}" Height="36" Padding="10,0" VerticalContentAlignment="Center"/>
+                    <Button Grid.Column="2" Classes="ghost" Content="Browse" Margin="8,0,0,0" Command="{Binding BrowseInputCommand}"/>
+                </Grid>
+                <Grid ColumnDefinitions="150,*,Auto">
+                    <TextBlock Grid.Column="0" Text="Output folder" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Text="{Binding OutputFolder, Mode=TwoWay}" Height="36" Padding="10,0" VerticalContentAlignment="Center"/>
+                    <Button Grid.Column="2" Classes="ghost" Content="Browse" Margin="8,0,0,0" Command="{Binding BrowseOutputCommand}"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- ===== Appearance ===== -->
+            <StackPanel Spacing="10">
+                <TextBlock Classes="section" Text="appearance"/>
+                <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
+
+                <Grid ColumnDefinitions="150,*" Margin="0,2,0,0">
+                    <TextBlock Grid.Column="0" Text="Theme" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Left"
+                              ItemsSource="{Binding ThemeOptions}"
+                              SelectedItem="{Binding Theme, Mode=TwoWay}"/>
+                </Grid>
+                <Grid ColumnDefinitions="150,*">
+                    <TextBlock Grid.Column="0" Text="Font size" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1" Width="120" HorizontalAlignment="Left"
+                              ItemsSource="{Binding FontSizeOptions}"
+                              SelectedItem="{Binding FontSize, Mode=TwoWay}"/>
+                </Grid>
+                <Grid ColumnDefinitions="150,*">
+                    <TextBlock Grid.Column="0" Text="Monospace font" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Left"
+                              ItemsSource="{Binding MonoFontOptions}"
+                              SelectedItem="{Binding MonoFont, Mode=TwoWay}"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- ===== About ===== -->
+            <StackPanel Spacing="10">
+                <TextBlock Classes="section" Text="about"/>
+                <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
+                <TextBlock FontSize="13" Foreground="{DynamicResource TextSecondary}">
+                    <Run Text="luna-chat v"/><Run Text="{Binding AppVersion}"/>
+                </TextBlock>
+                <TextBlock FontSize="13" Foreground="{DynamicResource TextSecondary}">
+                    <Run Text="kiro: "/><Run Text="{Binding KiroVersionText}"/>
+                </TextBlock>
+                <Button Classes="ghost" Content="Check for updates" HorizontalAlignment="Left" Command="{Binding CheckUpdatesCommand}"/>
+            </StackPanel>
+
+            <Button Classes="primary" Content="Save settings" HorizontalAlignment="Left" Command="{Binding SaveCommand}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

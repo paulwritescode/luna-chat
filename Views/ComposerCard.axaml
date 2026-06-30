@@ -1,0 +1,132 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LunaChat.ViewModels"
+             xmlns:views="using:LunaChat.Views"
+             mc:Ignorable="d" d:DesignWidth="720"
+             x:Class="LunaChat.Views.ComposerCard"
+             x:DataType="vm:ChatViewModel">
+
+    <Border Background="{DynamicResource BgComposer}"
+            BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1"
+            CornerRadius="22" Padding="8">
+        <StackPanel Spacing="6">
+
+            <!-- attachments (portrait thumbnails, above the input) -->
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled"
+                          IsVisible="{Binding HasAttachments}" Margin="2,2,2,0">
+                <ItemsControl ItemsSource="{Binding Attachments}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="10"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AttachmentViewModel">
+                            <StackPanel Width="86" Spacing="4">
+                                <Panel Width="86" Height="108">
+                                    <Border CornerRadius="12" ClipToBounds="True"
+                                            Background="{DynamicResource BgElevated}"
+                                            BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1">
+                                        <Panel>
+                                            <!-- image thumbnail -->
+                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                   IsVisible="{Binding HasThumbnail}"/>
+                                            <!-- document placeholder -->
+                                            <StackPanel IsVisible="{Binding IsDocument}"
+                                                        VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                        Spacing="6">
+                                                <Path Classes="ico" Width="26" Height="26"
+                                                      Data="{StaticResource IcoFile}"
+                                                      HorizontalAlignment="Center"/>
+                                                <Border Background="{DynamicResource Accent}" CornerRadius="4"
+                                                        Padding="6,1" HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding Ext}" FontSize="10"
+                                                               FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Panel>
+                                    </Border>
+                                    <!-- remove (X) -->
+                                    <Button Classes="iconbtn" Width="22" Height="22"
+                                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                                            Margin="0,4,4,0" Background="#99000000"
+                                            Command="{Binding RemoveCommand}" ToolTip.Tip="Remove">
+                                        <Path Width="10" Height="10" Stretch="Uniform"
+                                              Stroke="#FFFFFF" StrokeThickness="2"
+                                              StrokeLineCap="Round" Fill="Transparent"
+                                              Data="{StaticResource IcoX}"/>
+                                    </Button>
+                                </Panel>
+                                <TextBlock Text="{Binding FileName}" FontSize="11"
+                                           TextTrimming="CharacterEllipsis" TextAlignment="Center"
+                                           MaxWidth="86"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- input -->
+            <TextBox Name="ComposerBox" Classes="bare"
+                     Text="{Binding ComposerText, Mode=TwoWay}"
+                     PlaceholderText="{Binding ComposerPlaceholder}"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     MinHeight="40" MaxHeight="200"
+                     Padding="10,8"
+                     VerticalContentAlignment="Top"
+                     KeyDown="OnComposerKeyDown"/>
+
+            <!-- footer: attach + skill chips + send -->
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0" Classes="iconbtn" Command="{Binding AttachFileCommand}"
+                        VerticalAlignment="Bottom" ToolTip.Tip="Attach file (max 3)">
+                    <Path Classes="ico" Data="{StaticResource IcoPlus}"/>
+                </Button>
+
+                <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled"
+                              IsVisible="{Binding HasSkills}" Margin="8,0" VerticalAlignment="Center">
+                    <ItemsControl ItemsSource="{Binding SkillChips}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="6"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SkillChipViewModel">
+                                <ToggleButton Classes="skillchip" Height="28"
+                                              IsChecked="{Binding IsActive, Mode=TwoWay}"
+                                              ToolTip.Tip="{Binding TooltipText}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Path Classes="ico" Width="12" Height="12"
+                                              Data="{StaticResource IcoSparkle}"
+                                              Stroke="{Binding $parent[ToggleButton].Foreground}"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ToggleButton>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <Button Grid.Column="2" Classes="send" VerticalAlignment="Bottom"
+                        Command="{Binding PrimaryActionCommand}">
+                    <Panel>
+                        <Path Width="16" Height="16" Stretch="Uniform"
+                              IsVisible="{Binding !App.IsRunning}"
+                              Stroke="{DynamicResource SendFg}" StrokeThickness="2"
+                              StrokeLineCap="Round" StrokeJoin="Round" Fill="Transparent"
+                              Data="{StaticResource IcoArrowUp}"/>
+                        <Rectangle Width="11" Height="11" RadiusX="2" RadiusY="2"
+                                   IsVisible="{Binding App.IsRunning}"
+                                   Fill="{DynamicResource SendFg}"/>
+                    </Panel>
+                </Button>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

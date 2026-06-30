@@ -1,0 +1,88 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.ThemeDictionaries>
+
+        <!-- ===================== LIGHT ===================== -->
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="BgApp" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="BgSidebar" Color="#F9F9F9"/>
+            <SolidColorBrush x:Key="BgHover" Color="#ECECEC"/>
+            <SolidColorBrush x:Key="BgActive" Color="#E4E4E4"/>
+            <SolidColorBrush x:Key="BgComposer" Color="#F4F4F4"/>
+            <SolidColorBrush x:Key="BgElevated" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="BgChip" Color="#FFFFFF"/>
+
+            <SolidColorBrush x:Key="BorderSubtle" Color="#ECECEC"/>
+            <SolidColorBrush x:Key="BorderDefault" Color="#E0E0E0"/>
+            <SolidColorBrush x:Key="BorderStrong" Color="#D2D2D2"/>
+
+            <SolidColorBrush x:Key="TextPrimary" Color="#0D0D0D"/>
+            <SolidColorBrush x:Key="TextSecondary" Color="#6E6E6E"/>
+            <SolidColorBrush x:Key="TextTertiary" Color="#A4A4A4"/>
+
+            <SolidColorBrush x:Key="Accent" Color="#7C5CFF"/>
+            <SolidColorBrush x:Key="AccentSoft" Color="#EFEBFF"/>
+
+            <SolidColorBrush x:Key="IconBrush" Color="#5D5D5D"/>
+            <SolidColorBrush x:Key="IconActive" Color="#0D0D0D"/>
+
+            <SolidColorBrush x:Key="SendBg" Color="#0D0D0D"/>
+            <SolidColorBrush x:Key="SendFg" Color="#FFFFFF"/>
+
+            <SolidColorBrush x:Key="SkillActiveBg" Color="#EFEBFF"/>
+            <SolidColorBrush x:Key="SkillActiveBorder" Color="#7C5CFF"/>
+            <SolidColorBrush x:Key="SkillActiveText" Color="#4C36B3"/>
+
+            <SolidColorBrush x:Key="SuccessDot" Color="#19A974"/>
+            <SolidColorBrush x:Key="DangerText" Color="#E5484D"/>
+
+            <SolidColorBrush x:Key="CodeBg" Color="#F4F4F4"/>
+            <SolidColorBrush x:Key="CodeText" Color="#7C5CFF"/>
+        </ResourceDictionary>
+
+        <!-- ===================== DARK ===================== -->
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="BgApp" Color="#212121"/>
+            <SolidColorBrush x:Key="BgSidebar" Color="#171717"/>
+            <SolidColorBrush x:Key="BgHover" Color="#2A2A2A"/>
+            <SolidColorBrush x:Key="BgActive" Color="#303030"/>
+            <SolidColorBrush x:Key="BgComposer" Color="#2F2F2F"/>
+            <SolidColorBrush x:Key="BgElevated" Color="#2A2A2A"/>
+            <SolidColorBrush x:Key="BgChip" Color="#2A2A2A"/>
+
+            <SolidColorBrush x:Key="BorderSubtle" Color="#2F2F2F"/>
+            <SolidColorBrush x:Key="BorderDefault" Color="#3A3A3A"/>
+            <SolidColorBrush x:Key="BorderStrong" Color="#4A4A4A"/>
+
+            <SolidColorBrush x:Key="TextPrimary" Color="#ECECEC"/>
+            <SolidColorBrush x:Key="TextSecondary" Color="#9B9B9B"/>
+            <SolidColorBrush x:Key="TextTertiary" Color="#6E6E6E"/>
+
+            <SolidColorBrush x:Key="Accent" Color="#A78BFA"/>
+            <SolidColorBrush x:Key="AccentSoft" Color="#2E2A40"/>
+
+            <SolidColorBrush x:Key="IconBrush" Color="#B4B4B4"/>
+            <SolidColorBrush x:Key="IconActive" Color="#ECECEC"/>
+
+            <SolidColorBrush x:Key="SendBg" Color="#ECECEC"/>
+            <SolidColorBrush x:Key="SendFg" Color="#1A1A1A"/>
+
+            <SolidColorBrush x:Key="SkillActiveBg" Color="#2E2A40"/>
+            <SolidColorBrush x:Key="SkillActiveBorder" Color="#A78BFA"/>
+            <SolidColorBrush x:Key="SkillActiveText" Color="#C9BCFF"/>
+
+            <SolidColorBrush x:Key="SuccessDot" Color="#19C37D"/>
+            <SolidColorBrush x:Key="DangerText" Color="#F2555A"/>
+
+            <SolidColorBrush x:Key="CodeBg" Color="#1E1E1E"/>
+            <SolidColorBrush x:Key="CodeText" Color="#C9BCFF"/>
+        </ResourceDictionary>
+
+    </ResourceDictionary.ThemeDictionaries>
+
+    <!-- ===================== SHARED ===================== -->
+    <FontFamily x:Key="UiFont">Inter,Segoe UI,-apple-system,sans-serif</FontFamily>
+    <FontFamily x:Key="MonoFont">JetBrains Mono,Cascadia Code,Menlo,Consolas,monospace</FontFamily>
+
+</ResourceDictionary>

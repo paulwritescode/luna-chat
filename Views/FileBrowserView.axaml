@@ -1,0 +1,152 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LunaChat.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="980" d:DesignHeight="740"
+             x:Class="LunaChat.Views.FileBrowserView"
+             x:DataType="vm:FileBrowserViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.filerow">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10,9"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.filerow:pointerover">
+            <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ColumnDefinitions="*,1,*">
+
+        <!-- ===== Input column ===== -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,*">
+            <Border Grid.Row="0" Background="{DynamicResource BgSidebar}"
+                    BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,0,0,1"
+                    Padding="24,14">
+                <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                    <Path Grid.Column="0" Classes="ico" Width="16" Height="16" Data="{StaticResource IcoFolder}" Margin="0,0,10,0"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Input" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="{Binding InputFolder}" Classes="mono" FontSize="11"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource TextTertiary}"/>
+                    </StackPanel>
+                    <Button Grid.Column="2" Classes="ghost" Height="30" Content="Change"
+                            Command="{Binding ChangeInputCommand}"/>
+                </Grid>
+            </Border>
+
+            <Panel Grid.Row="1">
+                <ScrollViewer Padding="12,8">
+                    <ItemsControl ItemsSource="{Binding InputFiles}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:FileEntryViewModel">
+                                <Border Classes="filerow">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                        <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8"
+                                                Background="{DynamicResource BgComposer}">
+                                            <Path Classes="ico" Width="16" Height="16"
+                                                  Data="{StaticResource IcoFile}" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding FileName}" FontSize="13"
+                                                       Foreground="{DynamicResource TextPrimary}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock FontSize="11.5" Margin="0,1,0,0"
+                                                       Foreground="{DynamicResource TextTertiary}">
+                                                <Run Text="{Binding SizeText}"/><Run Text="  ·  "/><Run Text="{Binding ModifiedText}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Classes="ghost" Height="30" Content="Use in chat"
+                                                Command="{Binding $parent[ItemsControl].((vm:FileBrowserViewModel)DataContext).UseInChatCommand}"
+                                                CommandParameter="{Binding}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <StackPanel IsVisible="{Binding NoInputFiles}" VerticalAlignment="Center"
+                            HorizontalAlignment="Center" Spacing="8">
+                    <Path Classes="ico" Width="28" Height="28" Data="{StaticResource IcoFolder}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="No files in the input folder" FontSize="13"
+                               Foreground="{DynamicResource TextTertiary}"/>
+                </StackPanel>
+            </Panel>
+        </Grid>
+
+        <Border Grid.Column="1" Background="{DynamicResource BorderSubtle}"/>
+
+        <!-- ===== Output column ===== -->
+        <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto">
+            <Border Grid.Row="0" Background="{DynamicResource BgSidebar}"
+                    BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,0,0,1"
+                    Padding="24,14">
+                <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                    <Path Grid.Column="0" Classes="ico" Width="16" Height="16" Data="{StaticResource IcoFolder}" Margin="0,0,10,0"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Output" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="{Binding OutputFolder}" Classes="mono" FontSize="11"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource TextTertiary}"/>
+                    </StackPanel>
+                    <Button Grid.Column="2" Classes="ghost" Height="30" Content="Change"
+                            Command="{Binding ChangeOutputCommand}"/>
+                </Grid>
+            </Border>
+
+            <Panel Grid.Row="1">
+                <ScrollViewer Padding="12,8">
+                    <ItemsControl ItemsSource="{Binding OutputFiles}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:OutputFileViewModel">
+                                <Border Classes="filerow">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                        <Border Grid.Column="0" Width="34" Height="34" CornerRadius="8"
+                                                Background="{DynamicResource BgComposer}">
+                                            <Path Classes="ico" Width="16" Height="16"
+                                                  Data="{StaticResource IcoFile}" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding FileName}" FontSize="13"
+                                                       Foreground="{DynamicResource TextPrimary}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock FontSize="11.5" Margin="0,1,0,0"
+                                                       Foreground="{DynamicResource TextTertiary}">
+                                                <Run Text="{Binding SizeText}"/><Run Text="  ·  "/><Run Text="{Binding ModifiedText}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                                            <Button Classes="ghost" Height="30" Content="Open" Command="{Binding OpenCommand}"/>
+                                            <Button Classes="ghost" Height="30" Content="Delete"
+                                                    Command="{Binding $parent[ItemsControl].((vm:FileBrowserViewModel)DataContext).DeleteOutputCommand}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <StackPanel IsVisible="{Binding NoOutputFiles}" VerticalAlignment="Center"
+                            HorizontalAlignment="Center" Spacing="8">
+                    <Path Classes="ico" Width="28" Height="28" Data="{StaticResource IcoFolder}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Generated files will appear here" FontSize="13"
+                               Foreground="{DynamicResource TextTertiary}"/>
+                </StackPanel>
+            </Panel>
+
+            <Border Grid.Row="2" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0"
+                    Padding="24,12">
+                <Button Classes="ghost" Content="Clear all outputs" HorizontalAlignment="Left"
+                        IsEnabled="{Binding HasOutputFiles}"
+                        Command="{Binding ClearOutputsCommand}"/>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
