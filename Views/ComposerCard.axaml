@@ -86,41 +86,58 @@
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Button Grid.Column="0" Classes="iconbtn" VerticalAlignment="Bottom" ToolTip.Tip="Add">
                     <Button.Flyout>
-                        <MenuFlyout Placement="TopEdgeAlignedLeft">
-                            <MenuItem Header="Files and folders" Command="{Binding AttachFileCommand}">
-                                <MenuItem.Icon>
-                                    <Path Classes="ico" Width="15" Height="15" Data="{StaticResource IcoFile}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuFlyout>
+                        <Flyout Placement="TopEdgeAlignedLeft">
+                            <Border Width="300" Background="{DynamicResource BgElevated}"
+                                    BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1"
+                                    CornerRadius="12" Padding="6">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="Add" Classes="section" Margin="10,6,10,2"/>
+                                    <Button Classes="menurow" Command="{Binding AttachFileCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                            <Path Classes="ico" Width="16" Height="16" Data="{StaticResource IcoFolder}"/>
+                                            <TextBlock Text="Files and folders" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <TextBlock Text="Skills" Classes="section" Margin="10,8,10,2"/>
+                                    <TextBlock Text="No skills found — set a Skills folder in Settings"
+                                               IsVisible="{Binding NoSkills}" FontSize="12" Margin="10,0,10,6"
+                                               TextWrapping="Wrap"
+                                               Foreground="{DynamicResource TextTertiary}"/>
+                                    <ItemsControl ItemsSource="{Binding SkillChips}" MaxHeight="240">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:SkillChipViewModel">
+                                                <ToggleButton Classes="menurow" IsChecked="{Binding IsActive, Mode=TwoWay}"
+                                                              ToolTip.Tip="{Binding TooltipText}">
+                                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                                        <Path Grid.Column="0" Classes="ico" Width="15" Height="15"
+                                                              Data="{StaticResource IcoSparkle}" Margin="0,0,10,0"
+                                                              Stroke="{Binding $parent[ToggleButton].Foreground}"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                        <Path Grid.Column="2" Classes="ico" Width="14" Height="14"
+                                                              Data="{StaticResource IcoCheck}"
+                                                              IsVisible="{Binding IsActive}"
+                                                              Stroke="{DynamicResource Accent}"/>
+                                                    </Grid>
+                                                </ToggleButton>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Flyout>
                     </Button.Flyout>
                     <Path Classes="ico" Data="{StaticResource IcoPlus}"/>
                 </Button>
 
-                <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled"
-                              IsVisible="{Binding HasSkills}" Margin="8,0" VerticalAlignment="Center">
-                    <ItemsControl ItemsSource="{Binding SkillChips}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" Spacing="6"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:SkillChipViewModel">
-                                <ToggleButton Classes="skillchip" Height="28"
-                                              IsChecked="{Binding IsActive, Mode=TwoWay}"
-                                              ToolTip.Tip="{Binding TooltipText}">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <Path Classes="ico" Width="12" Height="12"
-                                              Data="{StaticResource IcoSparkle}"
-                                              Stroke="{Binding $parent[ToggleButton].Foreground}"/>
-                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </ToggleButton>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Disabled" Margin="8,0" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasActiveSkillsSummary}">
+                        <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoSparkle}"
+                              Stroke="{DynamicResource Accent}"/>
+                        <TextBlock Text="{Binding ActiveSkillSummary}" FontSize="12.5" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextSecondary}"/>
+                    </StackPanel>
                 </ScrollViewer>
 
                 <Button Grid.Column="2" Classes="send" VerticalAlignment="Bottom"

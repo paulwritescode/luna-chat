@@ -9,11 +9,18 @@ namespace LunaChat.ViewModels;
 /// </summary>
 public class MessageViewModel : ViewModelBase
 {
-    public MessageViewModel(Message message, Func<string, string> skillNameResolver, Action<string>? openPreview = null)
+    public MessageViewModel(Message message, Func<string, string> skillNameResolver,
+        Action<string>? openPreview = null,
+        Action<MessageViewModel>? onEdit = null,
+        Action<MessageViewModel>? onRedo = null,
+        Action<MessageViewModel>? openResponsePreview = null)
     {
         Model = message;
         IsUser = message.Role == "user";
         _openPreview = openPreview;
+        _onEdit = onEdit;
+        _onRedo = onRedo;
+        _openResponsePreview = openResponsePreview;
 
         foreach (var id in message.ActiveSkillSnapshot)
             SkillNames.Add(skillNameResolver(id));
@@ -26,6 +33,9 @@ public class MessageViewModel : ViewModelBase
     }
 
     private readonly Action<string>? _openPreview;
+    private readonly Action<MessageViewModel>? _onEdit;
+    private readonly Action<MessageViewModel>? _onRedo;
+    private readonly Action<MessageViewModel>? _openResponsePreview;
 
     public Message Model { get; }
 
@@ -48,11 +58,33 @@ public class MessageViewModel : ViewModelBase
         else if (p is OutputFileViewModel o) _openPreview?.Invoke(o.FullPath);
     });
 
+    public RelayCommand EditCommand => new(_ => _onEdit?.Invoke(this));
+    public RelayCommand RedoCommand => new(_ => _onRedo?.Invoke(this));
+    public RelayCommand OpenResponsePreviewCommand => new(_ => _openResponsePreview?.Invoke(this));
+
+    /// <summary>Heuristic: does the assistant text look like rich markdown worth a preview card?</summary>
+    public bool LooksLikeMarkdown
+    {
+        get
+        {
+            if (IsUser || string.IsNullOrWhiteSpace(Content)) return false;
+            var c = Content;
+            return c.Contains("\n#") || c.StartsWith("#")
+                || c.Contains("\n- ") || c.Contains("\n* ")
+                || c.Contains("```") || c.Contains("\n|")
+                || c.Length > 600;
+        }
+    }
+
     private string _content = "";
     public string Content
     {
         get => _content;
-        set => SetField(ref _content, value);
+        set
+        {
+            if (SetField(ref _content, value))
+                OnPropertyChanged(nameof(LooksLikeMarkdown));
+        }
     }
 
     public ObservableCollection<OutputFileViewModel> OutputFiles { get; } = new();

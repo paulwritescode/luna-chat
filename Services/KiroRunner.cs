@@ -94,6 +94,8 @@ public class KiroRunner
         psi.ArgumentList.Add("chat");
         psi.ArgumentList.Add("--no-interactive");
         psi.ArgumentList.Add("--trust-all-tools");
+        // "--" terminates flag parsing so a prompt starting with "-" is treated as text.
+        psi.ArgumentList.Add("--");
         psi.ArgumentList.Add(prompt);
 
         using var proc = new Process { StartInfo = psi };

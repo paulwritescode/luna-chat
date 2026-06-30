@@ -56,30 +56,36 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:AttachmentViewModel">
-                                                        <StackPanel Width="92" Spacing="4">
-                                                            <Border Width="92" Height="116" CornerRadius="12" ClipToBounds="True"
-                                                                    Background="{DynamicResource BgElevated}"
-                                                                    BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1">
-                                                                <Panel>
-                                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                                           IsVisible="{Binding HasThumbnail}"/>
-                                                                    <StackPanel IsVisible="{Binding IsDocument}"
-                                                                                VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
-                                                                        <Path Classes="ico" Width="26" Height="26"
-                                                                              Data="{StaticResource IcoFile}" HorizontalAlignment="Center"/>
-                                                                        <Border Background="{DynamicResource Accent}" CornerRadius="4"
-                                                                                Padding="6,1" HorizontalAlignment="Center">
-                                                                            <TextBlock Text="{Binding Ext}" FontSize="10"
-                                                                                       FontWeight="SemiBold" Foreground="#FFFFFF"/>
-                                                                        </Border>
-                                                                    </StackPanel>
-                                                                </Panel>
-                                                            </Border>
-                                                            <TextBlock Text="{Binding FileName}" FontSize="11"
-                                                                       TextTrimming="CharacterEllipsis" TextAlignment="Center"
-                                                                       MaxWidth="92"
-                                                                       Foreground="{DynamicResource TextSecondary}"/>
-                                                        </StackPanel>
+                                                        <Button Background="Transparent" BorderThickness="0" Padding="0"
+                                                                Cursor="Hand"
+                                                                Command="{Binding $parent[ItemsControl].((vm:MessageViewModel)DataContext).PreviewCommand}"
+                                                                CommandParameter="{Binding FullPath}"
+                                                                ToolTip.Tip="Open in preview">
+                                                            <StackPanel Width="92" Spacing="4">
+                                                                <Border Width="92" Height="116" CornerRadius="12" ClipToBounds="True"
+                                                                        Background="{DynamicResource BgElevated}"
+                                                                        BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1">
+                                                                    <Panel>
+                                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                                               IsVisible="{Binding HasThumbnail}"/>
+                                                                        <StackPanel IsVisible="{Binding IsDocument}"
+                                                                                    VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
+                                                                            <Path Classes="ico" Width="26" Height="26"
+                                                                                  Data="{StaticResource IcoFile}" HorizontalAlignment="Center"/>
+                                                                            <Border Background="{DynamicResource Accent}" CornerRadius="4"
+                                                                                    Padding="6,1" HorizontalAlignment="Center">
+                                                                                <TextBlock Text="{Binding Ext}" FontSize="10"
+                                                                                           FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                                                            </Border>
+                                                                        </StackPanel>
+                                                                    </Panel>
+                                                                </Border>
+                                                                <TextBlock Text="{Binding FileName}" FontSize="11"
+                                                                           TextTrimming="CharacterEllipsis" TextAlignment="Center"
+                                                                           MaxWidth="92"
+                                                                           Foreground="{DynamicResource TextSecondary}"/>
+                                                            </StackPanel>
+                                                        </Button>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
@@ -89,6 +95,25 @@
                                                                      FontSize="14"
                                                                      Foreground="{DynamicResource TextPrimary}"/>
                                             </Border>
+                                            <!-- user action row -->
+                                            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding TimeText}" FontSize="11.5"
+                                                           VerticalAlignment="Center" Margin="0,0,4,0"
+                                                           Foreground="{DynamicResource TextTertiary}"/>
+                                                <Button Classes="iconbtn" Width="26" Height="26"
+                                                        Command="{Binding CopyCommand}" ToolTip.Tip="Copy">
+                                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoCopy}"/>
+                                                </Button>
+                                                <Button Classes="iconbtn" Width="26" Height="26"
+                                                        Command="{Binding EditCommand}" ToolTip.Tip="Edit">
+                                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoEdit}"/>
+                                                </Button>
+                                                <Button Classes="iconbtn" Width="26" Height="26"
+                                                        Command="{Binding RedoCommand}" ToolTip.Tip="Redo">
+                                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoRedo}"/>
+                                                </Button>
+                                            </StackPanel>
                                         </StackPanel>
 
                                         <!-- assistant block -->
@@ -102,6 +127,31 @@
                                             </StackPanel>
 
                                             <ctl:MarkdownBlock Markdown="{Binding Content}"/>
+
+                                            <!-- markdown response card: click to open in preview -->
+                                            <Button IsVisible="{Binding LooksLikeMarkdown}"
+                                                    HorizontalAlignment="Left" Padding="0" Background="Transparent"
+                                                    BorderThickness="0" Cursor="Hand"
+                                                    Command="{Binding OpenResponsePreviewCommand}">
+                                                <Border Background="{DynamicResource BgElevated}"
+                                                        BorderBrush="{DynamicResource BorderDefault}"
+                                                        BorderThickness="1" CornerRadius="10" Padding="12,9">
+                                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                                        <Border Width="32" Height="32" CornerRadius="8"
+                                                                Background="{DynamicResource BgComposer}">
+                                                            <Path Classes="ico" Width="16" Height="16"
+                                                                  Data="{StaticResource IcoFile}" HorizontalAlignment="Center"/>
+                                                        </Border>
+                                                        <StackPanel VerticalAlignment="Center">
+                                                            <TextBlock Text="Open response in preview" FontSize="13"
+                                                                       FontWeight="Medium"
+                                                                       Foreground="{DynamicResource TextPrimary}"/>
+                                                            <TextBlock Text="Markdown" FontSize="11.5"
+                                                                       Foreground="{DynamicResource TextTertiary}"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Button>
 
                                             <!-- output file cards -->
                                             <ItemsControl ItemsSource="{Binding OutputFiles}" IsVisible="{Binding HasOutputs}">
@@ -142,11 +192,15 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
 
-                                            <!-- action row -->
-                                            <StackPanel Orientation="Horizontal" Spacing="2" Margin="-6,2,0,0">
-                                                <Button Classes="iconbtn" Width="28" Height="28"
+                                            <!-- assistant action row -->
+                                            <StackPanel Orientation="Horizontal" Spacing="4" Margin="-4,2,0,0">
+                                                <Button Classes="iconbtn" Width="26" Height="26"
                                                         Command="{Binding CopyCommand}" ToolTip.Tip="Copy">
-                                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFile}"/>
+                                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoCopy}"/>
+                                                </Button>
+                                                <Button Classes="iconbtn" Width="26" Height="26"
+                                                        Command="{Binding RedoCommand}" ToolTip.Tip="Redo">
+                                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoRedo}"/>
                                                 </Button>
                                             </StackPanel>
                                         </StackPanel>
@@ -247,12 +301,13 @@
                         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="14,0">
                             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                 <Path Classes="ico" Width="15" Height="15" Data="{StaticResource IcoFile}"/>
-                                <TextBlock Text="{Binding FileName}" FontSize="13.5" FontWeight="Medium"
+                                <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="Medium"
                                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                                            Foreground="{DynamicResource TextPrimary}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                <Button Classes="iconbtn" Command="{Binding OpenExternalCommand}" ToolTip.Tip="Open externally">
+                                <Button Classes="iconbtn" Command="{Binding OpenExternalCommand}"
+                                        IsVisible="{Binding HasFile}" ToolTip.Tip="Open externally">
                                     <Path Classes="ico" Width="15" Height="15" Data="{StaticResource IcoExternal}"/>
                                 </Button>
                                 <Button Classes="iconbtn"

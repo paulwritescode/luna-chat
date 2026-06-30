@@ -121,11 +121,14 @@ public class ChatViewModel : ViewModelBase
         }
     }
 
+    public bool HasActiveSkillsSummary => (_app.ActiveSession?.ActiveSkillIds.Count ?? 0) > 0;
+
     private void RaiseStateProps()
     {
         OnPropertyChanged(nameof(HasMessages));
         OnPropertyChanged(nameof(IsEmptyState));
         OnPropertyChanged(nameof(ActiveSkillSummary));
+        OnPropertyChanged(nameof(HasActiveSkillsSummary));
         OnPropertyChanged(nameof(ComposerPlaceholder));
         OnPropertyChanged(nameof(ShowRightPanel));
         OnPropertyChanged(nameof(ShowSessionCard));
@@ -183,8 +186,7 @@ public class ChatViewModel : ViewModelBase
             SessionTitle = session.Name;
             foreach (var m in session.Messages)
             {
-                var vm = new MessageViewModel(m, ResolveSkillName, OpenPreview) { Content = m.Content };
-                Messages.Add(vm);
+                Messages.Add(NewMessageVm(m));
             }
         }
         RebuildSkillRail();
@@ -193,6 +195,41 @@ public class ChatViewModel : ViewModelBase
 
     private string ResolveSkillName(string id)
         => _app.Skills.FirstOrDefault(s => s.Id == id)?.Name ?? id;
+
+    private MessageViewModel NewMessageVm(Message m) =>
+        new(m, ResolveSkillName, OpenPreview, EditMessage, RedoMessage, OpenResponsePreview)
+        {
+            Content = m.Content
+        };
+
+    private void EditMessage(MessageViewModel m)
+    {
+        ComposerText = m.Model.Content;
+    }
+
+    private async void RedoMessage(MessageViewModel m)
+    {
+        if (_app.IsRunning) return;
+        var textToSend = m.IsUser ? m.Model.Content : FindPrecedingUserText(m);
+        if (string.IsNullOrWhiteSpace(textToSend)) return;
+        ComposerText = textToSend;
+        _app.ComposerAttachments.Clear();
+        await SendAsync();
+    }
+
+    private string FindPrecedingUserText(MessageViewModel assistant)
+    {
+        var idx = Messages.IndexOf(assistant);
+        for (int i = idx - 1; i >= 0; i--)
+            if (Messages[i].IsUser) return Messages[i].Model.Content;
+        return "";
+    }
+
+    private void OpenResponsePreview(MessageViewModel m)
+    {
+        Preview = new PreviewViewModel(SessionTitle, m.Content, markdown: true);
+        IsPreviewOpen = true;
+    }
 
     // ----- Composer -----
     private string _composerText = "";
@@ -287,7 +324,7 @@ public class ChatViewModel : ViewModelBase
             ActiveSkillSnapshot = snapshot
         };
         session.Messages.Add(userMsg);
-        Messages.Add(new MessageViewModel(userMsg, ResolveSkillName, OpenPreview) { Content = text });
+        Messages.Add(NewMessageVm(userMsg));
 
         // Auto-name session on first message
         if (session.Messages.Count(m => m.Role == "user") == 1)
@@ -304,7 +341,7 @@ public class ChatViewModel : ViewModelBase
         // Assistant message (streamed)
         var assistantMsg = new Message { Role = "assistant", Content = "", ActiveSkillSnapshot = snapshot };
         session.Messages.Add(assistantMsg);
-        var assistantVm = new MessageViewModel(assistantMsg, ResolveSkillName, OpenPreview) { Content = "" };
+        var assistantVm = NewMessageVm(assistantMsg);
         Messages.Add(assistantVm);
         ScrollToEndRequested?.Invoke();
 
@@ -330,8 +367,8 @@ public class ChatViewModel : ViewModelBase
 
             await foreach (var line in runner.RunAsync(prompt, outputFolder, _app.RunCts.Token))
             {
-                if (ShouldSkipLine(line)) continue;
                 var clean = CleanLine(line);
+                if (ShouldSkipLine(clean)) continue;
                 assistantMsg.Content += (assistantMsg.Content.Length > 0 ? "\n" : "") + clean;
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
@@ -389,6 +426,10 @@ public class ChatViewModel : ViewModelBase
         }
     }
 
+    private static readonly System.Text.RegularExpressions.Regex AnsiRegex =
+        new(@"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[@-Z\\-_]",
+            System.Text.RegularExpressions.RegexOptions.Compiled);
+
     private static bool ShouldSkipLine(string line)
     {
         var t = line.TrimStart();
@@ -401,6 +442,9 @@ public class ChatViewModel : ViewModelBase
 
     private static string CleanLine(string line)
     {
+        // Strip ANSI/VT100 escape codes (kiro-cli emits colored output).
+        line = AnsiRegex.Replace(line, "");
+        line = line.TrimEnd(' ', '\t', '\r');
         // kiro prefixes its reply lines with "> "; strip a single leading marker.
         if (line.StartsWith("> ")) return line[2..];
         if (line.Trim() == ">") return "";
@@ -410,7 +454,8 @@ public class ChatViewModel : ViewModelBase
     private void AppendErrorMessage(string text)
     {
         var msg = new Message { Role = "assistant", Content = text };
-        var vm = new MessageViewModel(msg, ResolveSkillName, OpenPreview) { Content = text, IsError = true };
+        var vm = NewMessageVm(msg);
+        vm.IsError = true;
         Messages.Add(vm);
         ScrollToEndRequested?.Invoke();
     }

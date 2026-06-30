@@ -18,6 +18,7 @@ public class PreviewViewModel : ViewModelBase
     public PreviewViewModel(string path)
     {
         FullPath = path;
+        Title = Path.GetFileName(path);
         var ext = Path.GetExtension(path).ToLowerInvariant();
 
         IsImage = ImageExt.Contains(ext);
@@ -46,8 +47,21 @@ public class PreviewViewModel : ViewModelBase
         IsText = !IsImage && !IsMarkdown && !IsPdf;
     }
 
+    /// <summary>In-memory text/markdown preview (e.g. an assistant response).</summary>
+    public PreviewViewModel(string title, string content, bool markdown)
+    {
+        FullPath = "";
+        Title = title;
+        TextContent = content;
+        IsMarkdown = markdown;
+        IsText = !markdown;
+    }
+
+    public string Title { get; }
+
     public string FullPath { get; }
-    public string FileName => Path.GetFileName(FullPath);
+    public bool HasFile => !string.IsNullOrEmpty(FullPath);
+    public string FileName => string.IsNullOrEmpty(FullPath) ? Title : Path.GetFileName(FullPath);
 
     public string Subtitle
     {
