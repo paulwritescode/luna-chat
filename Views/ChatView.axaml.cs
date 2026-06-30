@@ -8,7 +8,7 @@ namespace LunaChat.Views;
 public partial class ChatView : UserControl
 {
     private ChatViewModel? _vm;
-    private double _lastRightWidth = 440;
+    private double _lastPreviewWidth = 460;
 
     public ChatView()
     {
@@ -39,19 +39,24 @@ public partial class ChatView : UserControl
             if (body == null || _vm == null || body.ColumnDefinitions.Count < 3) return;
             var rightCol = body.ColumnDefinitions[2];
 
-            if (_vm.ShowRightPanel)
+            if (!_vm.ShowRightPanel)
             {
-                if (rightCol.Width.Value <= 1)
-                    rightCol.Width = new GridLength(_lastRightWidth);
-                rightCol.MinWidth = 340;
-                rightCol.MaxWidth = 860;
+                rightCol.MinWidth = 0;
+                rightCol.MaxWidth = double.PositiveInfinity;
+                rightCol.Width = new GridLength(0);
+            }
+            else if (_vm.IsPreviewOpen)
+            {
+                rightCol.MinWidth = 360;
+                rightCol.MaxWidth = 900;
+                rightCol.Width = new GridLength(_lastPreviewWidth);
             }
             else
             {
-                if (rightCol.Width.Value > 1)
-                    _lastRightWidth = rightCol.Width.Value;
-                rightCol.MinWidth = 0;
-                rightCol.Width = new GridLength(0);
+                // session card: fixed, compact
+                rightCol.MinWidth = 240;
+                rightCol.MaxWidth = 360;
+                rightCol.Width = new GridLength(272);
             }
         });
     }

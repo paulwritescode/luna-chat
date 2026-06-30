@@ -84,10 +84,10 @@ public class ChatViewModel : ViewModelBase
         }
     }
 
-    /// <summary>The docked right column (file preview) is shown only when a file is opened.</summary>
-    public bool ShowRightPanel => IsPreviewOpen;
+    /// <summary>The right column (session card or file preview) is shown whenever there's a conversation.</summary>
+    public bool ShowRightPanel => HasMessages || IsPreviewOpen;
 
-    /// <summary>The floating session/context card is shown in conversation when no preview is open.</summary>
+    /// <summary>Within the right column, show the session card unless a preview is open.</summary>
     public bool ShowSessionCard => HasMessages && !IsPreviewOpen;
 
     public event Action? RightPanelChanged;

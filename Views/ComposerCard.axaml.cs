@@ -29,13 +29,14 @@ public partial class ComposerCard : UserControl
 
     private void OnComposerKeyDown(object? sender, KeyEventArgs e)
     {
-        var isModifier = e.KeyModifiers.HasFlag(KeyModifiers.Meta) ||
-                         e.KeyModifiers.HasFlag(KeyModifiers.Control);
-        if (e.Key == Key.Enter && isModifier)
-        {
-            e.Handled = true;
-            if (DataContext is ChatViewModel vm && vm.PrimaryActionCommand.CanExecute(null))
-                vm.PrimaryActionCommand.Execute(null);
-        }
+        if (e.Key != Key.Enter) return;
+
+        // Shift+Enter inserts a newline; Enter (or Cmd/Ctrl+Enter) sends.
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            return;
+
+        e.Handled = true;
+        if (DataContext is ChatViewModel vm && vm.PrimaryActionCommand.CanExecute(null))
+            vm.PrimaryActionCommand.Execute(null);
     }
 }

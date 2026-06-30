@@ -3,62 +3,64 @@ using System.IO;
 namespace LunaChat.Services;
 
 /// <summary>
-/// Locates the installed kiro-cli binary.
+/// Locates the headless kiro-cli binary.
+/// IMPORTANT: plain `kiro` on PATH is usually the IDE launcher (it opens the app),
+/// so we always prefer `kiro-cli`, which is the headless command used for chat.
 /// </summary>
 public static class KiroLocator
 {
-    /// <summary>
-    /// Attempts to locate the kiro binary, checking the configured path,
-    /// then PATH entries, then common install locations.
-    /// </summary>
     public static string? FindKiroBinary(string? configuredPath = null)
     {
-        // 1. Check user-configured path from Settings
-        if (!string.IsNullOrWhiteSpace(configuredPath) && File.Exists(configuredPath))
-            return configuredPath;
-
-        var exeName = OperatingSystem.IsWindows() ? "kiro.exe" : "kiro";
         var cliName = OperatingSystem.IsWindows() ? "kiro-cli.exe" : "kiro-cli";
 
-        // 2. Search PATH entries (prefer kiro-cli, then kiro)
+        // 1. Always prefer kiro-cli wherever it is found.
+        var cli = FindOnPath(cliName) ?? FindInCommonLocations(cliName);
+        if (cli != null) return cli;
+
+        // 2. Honor an explicitly configured path that points at a real CLI.
+        if (!string.IsNullOrWhiteSpace(configuredPath) && File.Exists(configuredPath)
+            && Path.GetFileName(configuredPath).Contains("kiro-cli", StringComparison.OrdinalIgnoreCase))
+            return configuredPath;
+
+        // 3. Last resort: plain kiro (may be the IDE launcher on some installs).
+        var exeName = OperatingSystem.IsWindows() ? "kiro.exe" : "kiro";
+        return FindOnPath(exeName) ?? FindInCommonLocations(exeName)
+            ?? (!string.IsNullOrWhiteSpace(configuredPath) && File.Exists(configuredPath) ? configuredPath : null);
+    }
+
+    private static string? FindOnPath(string name)
+    {
         var pathEnv = Environment.GetEnvironmentVariable("PATH") ?? "";
         var separator = OperatingSystem.IsWindows() ? ';' : ':';
-        var dirs = pathEnv.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-        foreach (var name in new[] { cliName, exeName })
+        foreach (var dir in pathEnv.Split(separator, StringSplitOptions.RemoveEmptyEntries))
         {
-            foreach (var dir in dirs)
+            try
             {
-                try
-                {
-                    var candidate = Path.Combine(dir.Trim(), name);
-                    if (File.Exists(candidate))
-                        return candidate;
-                }
-                catch
-                {
-                    // Ignore malformed PATH segments.
-                }
+                var candidate = Path.Combine(dir.Trim(), name);
+                if (File.Exists(candidate)) return candidate;
             }
+            catch { /* ignore malformed PATH segments */ }
         }
+        return null;
+    }
 
-        // 3. Common install locations
+    private static string? FindInCommonLocations(string name)
+    {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var common = OperatingSystem.IsWindows()
+        string[] candidates = OperatingSystem.IsWindows()
             ? new[]
             {
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "kiro", "kiro-cli.exe"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "kiro", "kiro.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "kiro-cli", name),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "kiro", name),
             }
             : new[]
             {
-                "/usr/local/bin/kiro-cli",
-                "/opt/homebrew/bin/kiro-cli",
-                "/usr/local/bin/kiro",
-                "/opt/homebrew/bin/kiro",
-                Path.Combine(home, ".local/bin/kiro-cli"),
-                Path.Combine(home, ".local/bin/kiro"),
+                Path.Combine(home, ".local/bin", name),
+                $"/Applications/Kiro CLI.app/Contents/MacOS/{name}",
+                $"/usr/local/bin/{name}",
+                $"/opt/homebrew/bin/{name}",
             };
 
-        return common.FirstOrDefault(File.Exists);
+        return candidates.FirstOrDefault(File.Exists);
     }
 }

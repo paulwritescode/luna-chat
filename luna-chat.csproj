@@ -9,7 +9,7 @@
     <NoWarn>$(NoWarn);CA1416</NoWarn>
     <AssemblyName>LunaChat</AssemblyName>
     <RootNamespace>LunaChat</RootNamespace>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
     <Authors>Paul</Authors>
     <Description>kiro-cli skills desktop client</Description>
   </PropertyGroup>

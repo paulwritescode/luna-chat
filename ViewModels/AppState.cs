@@ -135,6 +135,11 @@ public class AppState : ViewModelBase
         }
 
         KiroBinaryPath = binary;
+        if (!string.Equals(Settings.KiroBinaryPath, binary, StringComparison.Ordinal))
+        {
+            Settings.KiroBinaryPath = binary;
+            try { await SettingsStore.SaveAsync(Settings); } catch { /* best effort */ }
+        }
         var runner = new KiroRunner(binary);
         var version = await runner.GetVersionAsync();
         if (version == null)
