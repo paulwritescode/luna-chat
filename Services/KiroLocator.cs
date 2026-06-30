@@ -18,21 +18,26 @@ public static class KiroLocator
             return configuredPath;
 
         var exeName = OperatingSystem.IsWindows() ? "kiro.exe" : "kiro";
+        var cliName = OperatingSystem.IsWindows() ? "kiro-cli.exe" : "kiro-cli";
 
-        // 2. Search PATH entries
+        // 2. Search PATH entries (prefer kiro-cli, then kiro)
         var pathEnv = Environment.GetEnvironmentVariable("PATH") ?? "";
         var separator = OperatingSystem.IsWindows() ? ';' : ':';
-        foreach (var dir in pathEnv.Split(separator, StringSplitOptions.RemoveEmptyEntries))
+        var dirs = pathEnv.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var name in new[] { cliName, exeName })
         {
-            try
+            foreach (var dir in dirs)
             {
-                var candidate = Path.Combine(dir.Trim(), exeName);
-                if (File.Exists(candidate))
-                    return candidate;
-            }
-            catch
-            {
-                // Ignore malformed PATH segments.
+                try
+                {
+                    var candidate = Path.Combine(dir.Trim(), name);
+                    if (File.Exists(candidate))
+                        return candidate;
+                }
+                catch
+                {
+                    // Ignore malformed PATH segments.
+                }
             }
         }
 
@@ -41,12 +46,16 @@ public static class KiroLocator
         var common = OperatingSystem.IsWindows()
             ? new[]
             {
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "kiro", "kiro-cli.exe"),
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "kiro", "kiro.exe"),
             }
             : new[]
             {
+                "/usr/local/bin/kiro-cli",
+                "/opt/homebrew/bin/kiro-cli",
                 "/usr/local/bin/kiro",
                 "/opt/homebrew/bin/kiro",
+                Path.Combine(home, ".local/bin/kiro-cli"),
                 Path.Combine(home, ".local/bin/kiro"),
             };
 

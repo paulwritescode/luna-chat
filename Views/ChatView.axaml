@@ -155,6 +155,71 @@
                                Foreground="{DynamicResource TextPrimary}"/>
                     <views:ComposerCard/>
                 </StackPanel>
+
+                <!-- floating session/context card -->
+                <Border IsVisible="{Binding ShowSessionCard}"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Width="252" Margin="0,8,16,0"
+                        Background="{DynamicResource BgElevated}"
+                        BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1"
+                        CornerRadius="12" Padding="14,12">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Session" Classes="section"/>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Active skills" FontSize="12"
+                                       Foreground="{DynamicResource TextTertiary}"/>
+                            <ItemsControl ItemsSource="{Binding ActiveSkillChips}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:SkillChipViewModel">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,1"
+                                                    IsVisible="{Binding IsActive}">
+                                            <Path Classes="ico" Width="14" Height="14"
+                                                  Data="{StaticResource IcoSparkle}"
+                                                  Stroke="{DynamicResource Accent}"/>
+                                            <TextBlock Text="{Binding Name}" FontSize="13"
+                                                       Foreground="{DynamicResource TextPrimary}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="{Binding ActiveSkillSummary}" FontSize="12"
+                                       Foreground="{DynamicResource TextTertiary}"/>
+                        </StackPanel>
+
+                        <!-- attached files in context -->
+                        <StackPanel Spacing="6" IsVisible="{Binding HasAttachments}">
+                            <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
+                            <TextBlock Text="Attached files" FontSize="12"
+                                       Foreground="{DynamicResource TextTertiary}"/>
+                            <ItemsControl ItemsSource="{Binding Attachments}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:AttachmentViewModel">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,1">
+                                            <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFile}"/>
+                                            <TextBlock Text="{Binding FileName}" FontSize="13"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{DynamicResource TextPrimary}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
+
+                        <StackPanel Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFolder}"/>
+                                <TextBlock Text="{Binding App.OutputFolderPath}" FontSize="12" Classes="mono"
+                                           TextTrimming="CharacterEllipsis"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                            </StackPanel>
+                            <Button Classes="flat" Content="Open output folder" HorizontalAlignment="Left"
+                                    Command="{Binding OpenOutputFolderCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
             </Panel>
 
             <!-- splitter -->
@@ -190,67 +255,30 @@
                         </Grid>
 
                         <ScrollViewer Grid.Row="1" Padding="20,8,20,20">
-                            <Panel>
+                            <StackPanel Spacing="10">
                                 <Image Source="{Binding Image}" Stretch="Uniform"
                                        HorizontalAlignment="Center" VerticalAlignment="Top"
                                        IsVisible="{Binding IsImage}"/>
+                                <ItemsControl ItemsSource="{Binding PdfPages}" IsVisible="{Binding IsPdf}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Margin="0,0,0,10" CornerRadius="4"
+                                                    BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1">
+                                                <Image Source="{Binding}" Stretch="Uniform"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                                 <ctl:MarkdownBlock Markdown="{Binding TextContent}"
                                                    IsVisible="{Binding IsMarkdown}"/>
                                 <SelectableTextBlock Text="{Binding TextContent}" TextWrapping="Wrap"
                                                      FontFamily="{DynamicResource MonoFont}" FontSize="12.5"
                                                      IsVisible="{Binding IsText}"
                                                      Foreground="{DynamicResource TextPrimary}"/>
-                            </Panel>
+                            </StackPanel>
                         </ScrollViewer>
                       </Grid>
                     </Grid>
-
-                    <!-- session panel -->
-                    <ScrollViewer IsVisible="{Binding ShowSessionPanel}" Padding="16,14">
-                        <StackPanel Spacing="12">
-                            <TextBlock Text="Session" Classes="section"/>
-
-                            <StackPanel Spacing="6">
-                                <TextBlock Text="Active skills" FontSize="12"
-                                           Foreground="{DynamicResource TextTertiary}"/>
-                                <ItemsControl ItemsSource="{Binding ActiveSkillChips}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:SkillChipViewModel">
-                                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,1"
-                                                        IsVisible="{Binding IsActive}">
-                                                <Path Classes="ico" Width="14" Height="14"
-                                                      Data="{StaticResource IcoSparkle}"
-                                                      Stroke="{DynamicResource Accent}"/>
-                                                <TextBlock Text="{Binding Name}" FontSize="13"
-                                                           Foreground="{DynamicResource TextPrimary}"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <TextBlock Text="{Binding ActiveSkillSummary}" FontSize="12"
-                                           Foreground="{DynamicResource TextTertiary}"/>
-                            </StackPanel>
-
-                            <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
-
-                            <StackPanel Spacing="8">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFolder}"/>
-                                    <TextBlock Text="{Binding App.InputFolderPath}" FontSize="12" Classes="mono"
-                                               TextTrimming="CharacterEllipsis"
-                                               Foreground="{DynamicResource TextSecondary}"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoFolder}"/>
-                                    <TextBlock Text="{Binding App.OutputFolderPath}" FontSize="12" Classes="mono"
-                                               TextTrimming="CharacterEllipsis"
-                                               Foreground="{DynamicResource TextSecondary}"/>
-                                </StackPanel>
-                                <Button Classes="flat" Content="Open output folder" HorizontalAlignment="Left"
-                                        Command="{Binding OpenOutputFolderCommand}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </ScrollViewer>
                 </Panel>
             </Border>
         </Grid>

@@ -1,11 +1,12 @@
 using System.IO;
 using Avalonia.Media.Imaging;
+using LunaChat.Services;
 
 namespace LunaChat.ViewModels;
 
 /// <summary>
-/// A file attached to the composer. Shows a portrait thumbnail for images,
-/// or a typed placeholder card for documents. Removable via <see cref="RemoveCommand"/>.
+/// A file attached to the composer. Shows a portrait thumbnail for images and PDFs,
+/// or a typed placeholder card for other documents. Removable via <see cref="RemoveCommand"/>.
 /// </summary>
 public class AttachmentViewModel : ViewModelBase
 {
@@ -20,10 +21,11 @@ public class AttachmentViewModel : ViewModelBase
 
         var ext = Path.GetExtension(path).ToLowerInvariant();
         IsImage = ImageExt.Contains(ext);
+        IsPdf = ext == ".pdf";
         Ext = string.IsNullOrEmpty(ext) ? "FILE" : ext.TrimStart('.').ToUpperInvariant();
 
-        if (IsImage)
-            TryLoadThumbnail(path);
+        if (IsImage) TryLoadImageThumb(path);
+        else if (IsPdf) Thumbnail = PdfThumbnailer.RenderPage(path, 0, decodeWidth: 220);
     }
 
     public string FullPath { get; }
@@ -34,8 +36,10 @@ public class AttachmentViewModel : ViewModelBase
     public string Ext { get; }
 
     public bool IsImage { get; }
+    public bool IsPdf { get; }
 
-    public bool IsDocument => !IsImage;
+    /// <summary>Show the placeholder card only when there is no thumbnail.</summary>
+    public bool IsDocument => Thumbnail == null;
 
     private Bitmap? _thumbnail;
     public Bitmap? Thumbnail
@@ -44,7 +48,10 @@ public class AttachmentViewModel : ViewModelBase
         private set
         {
             if (SetField(ref _thumbnail, value))
+            {
                 OnPropertyChanged(nameof(HasThumbnail));
+                OnPropertyChanged(nameof(IsDocument));
+            }
         }
     }
 
@@ -52,7 +59,7 @@ public class AttachmentViewModel : ViewModelBase
 
     public RelayCommand RemoveCommand => new(_ => _onRemove(this));
 
-    private void TryLoadThumbnail(string path)
+    private void TryLoadImageThumb(string path)
     {
         try
         {

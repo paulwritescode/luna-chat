@@ -8,7 +8,7 @@ namespace LunaChat.Views;
 public partial class ChatView : UserControl
 {
     private ChatViewModel? _vm;
-    private double _lastRightWidth = 380;
+    private double _lastRightWidth = 440;
 
     public ChatView()
     {
@@ -43,8 +43,8 @@ public partial class ChatView : UserControl
             {
                 if (rightCol.Width.Value <= 1)
                     rightCol.Width = new GridLength(_lastRightWidth);
-                rightCol.MinWidth = 300;
-                rightCol.MaxWidth = 760;
+                rightCol.MinWidth = 340;
+                rightCol.MaxWidth = 860;
             }
             else
             {

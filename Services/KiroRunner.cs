@@ -22,7 +22,9 @@ public class KiroProcessException : Exception
 }
 
 /// <summary>
-/// Spawns and streams output from the kiro-cli binary.
+/// Spawns and streams output from the kiro-cli binary using headless mode
+/// (<c>kiro-cli chat --no-interactive --trust-all-tools "&lt;prompt&gt;"</c>).
+/// Additional context is piped via stdin.
 /// </summary>
 public class KiroRunner
 {
@@ -36,7 +38,7 @@ public class KiroRunner
     public string BinaryPath => _binary;
 
     /// <summary>
-    /// Runs `kiro --version`. Returns trimmed output, or null on failure.
+    /// Runs <c>kiro --version</c>. Returns trimmed output, or null on failure.
     /// </summary>
     public async Task<string?> GetVersionAsync(CancellationToken ct = default)
     {
@@ -66,39 +68,61 @@ public class KiroRunner
     }
 
     /// <summary>
-    /// Spawns kiro with the given prompt file and output dir, streaming stdout
-    /// lines as they arrive. Throws <see cref="KiroProcessException"/> on non-zero exit.
+    /// Runs a prompt headlessly, streaming stdout lines as they arrive.
+    /// <paramref name="prompt"/> is passed as the chat argument; <paramref name="stdinContext"/>
+    /// (skills + history + attachments) is piped through stdin.
+    /// Throws <see cref="KiroProcessException"/> on a non-zero exit.
     /// </summary>
     public async IAsyncEnumerable<string> RunAsync(
-        string promptFilePath,
-        string outputDir,
+        string prompt,
+        string stdinContext,
+        string workingDir,
         [EnumeratorCancellation] CancellationToken ct = default)
     {
-        Directory.CreateDirectory(outputDir);
+        if (!string.IsNullOrWhiteSpace(workingDir))
+            Directory.CreateDirectory(workingDir);
 
         var psi = new ProcessStartInfo
         {
             FileName = _binary,
-            Arguments = $"run --prompt \"{promptFilePath}\" --output \"{outputDir}\"",
+            RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+            WorkingDirectory = string.IsNullOrWhiteSpace(workingDir)
+                ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+                : workingDir
         };
+        psi.ArgumentList.Add("chat");
+        psi.ArgumentList.Add("--no-interactive");
+        psi.ArgumentList.Add("--trust-all-tools");
+        psi.ArgumentList.Add(prompt);
 
         using var proc = new Process { StartInfo = psi };
 
         var stderr = new System.Text.StringBuilder();
         proc.Start();
 
-        // Drain stderr in the background so the buffer never blocks.
+        // Drain stderr in the background.
         var errTask = Task.Run(async () =>
         {
             string? line;
             while ((line = await proc.StandardError.ReadLineAsync(ct)) != null)
                 stderr.AppendLine(line);
         }, ct);
+
+        // Pipe context via stdin, then close it so kiro proceeds.
+        try
+        {
+            if (!string.IsNullOrEmpty(stdinContext))
+                await proc.StandardInput.WriteAsync(stdinContext.AsMemory(), ct);
+            proc.StandardInput.Close();
+        }
+        catch
+        {
+            // If the process doesn't accept stdin, continue regardless.
+        }
 
         var reader = proc.StandardOutput;
         string? outLine;
@@ -114,28 +138,24 @@ public class KiroRunner
             throw new KiroProcessException(proc.ExitCode, stderr.ToString().Trim());
     }
 
-    /// <summary>
-    /// Moves all files produced in <paramref name="tempOutputDir"/> into
-    /// <paramref name="destFolder"/>, preserving relative structure.
-    /// Returns the destination paths.
-    /// </summary>
-    public static List<string> CollectOutputs(string tempOutputDir, string destFolder)
+    /// <summary>Snapshot the set of files currently in a directory (recursive).</summary>
+    public static HashSet<string> SnapshotFiles(string dir)
     {
-        var moved = new List<string>();
-        if (!Directory.Exists(tempOutputDir))
-            return moved;
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(dir) || !Directory.Exists(dir)) return set;
+        foreach (var f in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
+            set.Add(f);
+        return set;
+    }
 
-        Directory.CreateDirectory(destFolder);
-
-        foreach (var file in Directory.EnumerateFiles(tempOutputDir, "*", SearchOption.AllDirectories))
-        {
-            var relative = Path.GetRelativePath(tempOutputDir, file);
-            var dest = Path.Combine(destFolder, relative);
-            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
-            File.Move(file, dest, overwrite: true);
-            moved.Add(dest);
-        }
-
-        return moved;
+    /// <summary>Return files present now that were not in the prior snapshot.</summary>
+    public static List<string> NewFilesSince(string dir, HashSet<string> before)
+    {
+        var added = new List<string>();
+        if (string.IsNullOrWhiteSpace(dir) || !Directory.Exists(dir)) return added;
+        foreach (var f in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
+            if (!before.Contains(f))
+                added.Add(f);
+        return added;
     }
 }

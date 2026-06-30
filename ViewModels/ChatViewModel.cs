@@ -78,14 +78,17 @@ public class ChatViewModel : ViewModelBase
             if (SetField(ref _isPreviewOpen, value))
             {
                 OnPropertyChanged(nameof(ShowRightPanel));
-                OnPropertyChanged(nameof(ShowSessionPanel));
+                OnPropertyChanged(nameof(ShowSessionCard));
                 RightPanelChanged?.Invoke();
             }
         }
     }
 
-    public bool ShowRightPanel => HasMessages || IsPreviewOpen;
-    public bool ShowSessionPanel => HasMessages && !IsPreviewOpen;
+    /// <summary>The docked right column (file preview) is shown only when a file is opened.</summary>
+    public bool ShowRightPanel => IsPreviewOpen;
+
+    /// <summary>The floating session/context card is shown in conversation when no preview is open.</summary>
+    public bool ShowSessionCard => HasMessages && !IsPreviewOpen;
 
     public event Action? RightPanelChanged;
 
@@ -114,7 +117,7 @@ public class ChatViewModel : ViewModelBase
         OnPropertyChanged(nameof(ActiveSkillSummary));
         OnPropertyChanged(nameof(ComposerPlaceholder));
         OnPropertyChanged(nameof(ShowRightPanel));
-        OnPropertyChanged(nameof(ShowSessionPanel));
+        OnPropertyChanged(nameof(ShowSessionCard));
         RightPanelChanged?.Invoke();
     }
 
@@ -299,32 +302,51 @@ public class ChatViewModel : ViewModelBase
         RaiseCommandState();
 
         var outputFolder = _app.OutputFolderPath;
-        var tempOut = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"lunachat-out-{Guid.NewGuid():N}");
+        if (string.IsNullOrWhiteSpace(outputFolder))
+            outputFolder = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "Documents", "LunaChat", "outputs");
+        try { System.IO.Directory.CreateDirectory(outputFolder); } catch { }
+
+        var before = KiroRunner.SnapshotFiles(outputFolder);
 
         try
         {
-            var promptFile = _app.PromptBuilder.BuildToTempFile(session, text, attachmentPaths);
+            // Full context (skills + history + attachments) goes via stdin;
+            // the current message is the headless prompt argument.
+            var context = _app.PromptBuilder.Build(session, text, attachmentPaths);
             var runner = new KiroRunner(_app.KiroBinaryPath);
 
-            await foreach (var line in runner.RunAsync(promptFile, tempOut, _app.RunCts.Token))
+            await foreach (var line in runner.RunAsync(text, context, outputFolder, _app.RunCts.Token))
             {
-                assistantMsg.Content += (assistantMsg.Content.Length > 0 ? "\n" : "") + line;
+                if (ShouldSkipLine(line)) continue;
+                var clean = CleanLine(line);
+                assistantMsg.Content += (assistantMsg.Content.Length > 0 ? "\n" : "") + clean;
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    assistantVm.Content = assistantMsg.Content;
+                    assistantVm.Content = assistantMsg.Content.TrimStart('\n');
                     ScrollToEndRequested?.Invoke();
                 });
             }
 
-            // Collect outputs
-            if (!string.IsNullOrWhiteSpace(outputFolder))
+            assistantMsg.Content = assistantMsg.Content.Trim();
+            await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Content = assistantMsg.Content);
+
+            // Detect any files kiro created in the output folder.
+            var produced = KiroRunner.NewFilesSince(outputFolder, before);
+            if (produced.Count > 0)
             {
-                var moved = KiroRunner.CollectOutputs(tempOut, outputFolder);
-                assistantMsg.OutputFilePaths = moved;
+                assistantMsg.OutputFilePaths = produced;
                 await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Sync());
             }
 
-            try { System.IO.File.Delete(promptFile); } catch { }
+            if (string.IsNullOrWhiteSpace(assistantMsg.Content))
+            {
+                assistantMsg.Content = produced.Count > 0
+                    ? "Done. See the generated file(s) below."
+                    : "kiro returned no output.";
+                await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Content = assistantMsg.Content);
+            }
         }
         catch (OperationCanceledException)
         {
@@ -346,7 +368,6 @@ public class ChatViewModel : ViewModelBase
         }
         finally
         {
-            try { if (System.IO.Directory.Exists(tempOut)) System.IO.Directory.Delete(tempOut, true); } catch { }
             _app.IsRunning = false;
             _app.RunCts?.Dispose();
             _app.RunCts = null;
@@ -355,6 +376,24 @@ public class ChatViewModel : ViewModelBase
             await _app.SessionStore.SaveAsync(session);
             ScrollToEndRequested?.Invoke();
         }
+    }
+
+    private static bool ShouldSkipLine(string line)
+    {
+        var t = line.TrimStart();
+        return t.StartsWith("All tools are now trusted")
+            || t.StartsWith("Agents can sometimes do unexpected")
+            || t.StartsWith("Learn more at https://kiro.dev")
+            || t.StartsWith("▸ Credits")
+            || (t.Contains("Credits:") && t.Contains("Time:"));
+    }
+
+    private static string CleanLine(string line)
+    {
+        // kiro prefixes its reply lines with "> "; strip a single leading marker.
+        if (line.StartsWith("> ")) return line[2..];
+        if (line.Trim() == ">") return "";
+        return line;
     }
 
     private void AppendErrorMessage(string text)

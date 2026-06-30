@@ -8,9 +8,9 @@
              x:Class="LunaChat.Views.ComposerCard"
              x:DataType="vm:ChatViewModel">
 
-    <Border Background="{DynamicResource BgComposer}"
+    <Border Name="CardRoot" Background="{DynamicResource BgComposer}"
             BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1"
-            CornerRadius="22" Padding="8">
+            CornerRadius="22" Padding="8" PointerPressed="OnCardPressed">
         <StackPanel Spacing="6">
 
             <!-- attachments (portrait thumbnails, above the input) -->
