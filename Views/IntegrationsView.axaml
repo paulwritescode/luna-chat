@@ -1,0 +1,249 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:LunaChat.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="980" d:DesignHeight="740"
+             x:Class="LunaChat.Views.IntegrationsView"
+             x:DataType="vm:IntegrationsViewModel">
+
+    <Grid ColumnDefinitions="216,*">
+
+        <!-- ===== sub-nav ===== -->
+        <Border Grid.Column="0" Background="{DynamicResource Panel}"
+                BorderBrush="{DynamicResource Line}" BorderThickness="0,0,1,0">
+            <StackPanel Margin="12,18,12,0" Spacing="2">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="6,0,0,12">
+                    <Path Classes="ico" Width="16" Height="16" Data="{StaticResource IcoBranch}"/>
+                    <TextBlock Text="Integrations" FontSize="13.5" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Foreground="{DynamicResource Ink}"/>
+                </StackPanel>
+                <Button Classes="nav" Classes.active="{Binding IsConnectorsTab}"
+                        Command="{Binding SelectTabCommand}" CommandParameter="connectors">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="Connectors" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ConnectedCount}" FontSize="11"
+                                   VerticalAlignment="Center" Foreground="{DynamicResource Faint}"/>
+                    </Grid>
+                </Button>
+                <Button Classes="nav" Classes.active="{Binding IsMcpTab}"
+                        Command="{Binding SelectTabCommand}" CommandParameter="mcp">
+                    <TextBlock Text="MCP servers" VerticalAlignment="Center"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== content ===== -->
+        <ScrollViewer Grid.Column="1">
+            <Panel Margin="28,24,28,40" HorizontalAlignment="Left" MaxWidth="760">
+
+                <!-- ============ CONNECTORS ============ -->
+                <StackPanel IsVisible="{Binding IsConnectorsTab}" Spacing="16">
+
+                    <!-- gallery -->
+                    <StackPanel IsVisible="{Binding IsConnectorGallery}" Spacing="14">
+                        <StackPanel Spacing="3">
+                            <TextBlock Text="Connectors" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Ink}"/>
+                            <TextBlock Text="Apps luna-chat can use. You bring the credentials — tokens are stored in your OS vault."
+                                       FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding Connectors}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ConnectorCardViewModel">
+                                    <Button Classes="providercard" Margin="0,0,10,10"
+                                            Command="{Binding $parent[ItemsControl].((vm:IntegrationsViewModel)DataContext).OpenConnectorCommand}"
+                                            CommandParameter="{Binding}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="9"
+                                                    Background="{Binding BrandSoftBrush}"
+                                                    Margin="0,0,11,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Initial}" FontSize="16" FontWeight="Bold"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                           Foreground="{Binding BrandBrush}"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource Ink}"/>
+                                                    <Border CornerRadius="4" Padding="5,0" VerticalAlignment="Center"
+                                                            BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                                                            IsVisible="{Binding TwoWay}">
+                                                        <TextBlock Text="two-way" FontSize="10"
+                                                                   Foreground="{DynamicResource Muted}"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                                             Fill="{DynamicResource Ok}"
+                                                             IsVisible="{Binding IsConnected}"/>
+                                                    <TextBlock FontSize="11.5" VerticalAlignment="Center"
+                                                               Text="{Binding Description}"
+                                                               Foreground="{DynamicResource Faint}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="›" FontSize="16" VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource Faint}"/>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock FontSize="11.5" Foreground="{DynamicResource Faint}">
+                            <Run Text="Tokens are stored in "/><Run Text="{Binding BackendName}"/><Run Text="."/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- connector form -->
+                    <StackPanel IsVisible="{Binding IsConnectorForm}" Spacing="12">
+                        <Button Classes="flat" HorizontalAlignment="Left" Content="‹ All connectors"
+                                Command="{Binding BackCommand}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="42" Height="42" CornerRadius="10"
+                                    Background="{Binding FormBrandSoftBrush}">
+                                <TextBlock Text="{Binding FormInitial}" FontSize="19" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="{Binding FormBrandBrush}"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding FormTitle}" FontSize="16" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Ink}"/>
+                                <TextBlock Text="{Binding FormDescription}" FontSize="12"
+                                           Foreground="{DynamicResource Muted}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding Fields}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ProviderFieldViewModel">
+                                    <StackPanel Spacing="4" Margin="0,4,0,0">
+                                        <TextBlock Text="{Binding Label}" FontSize="12"
+                                                   Foreground="{DynamicResource Muted}"/>
+                                        <TextBox Text="{Binding Value, Mode=TwoWay}"
+                                                 PasswordChar="{Binding PasswordChar}"
+                                                 PlaceholderText="{Binding Placeholder}"
+                                                 Height="38" Padding="10,0" VerticalContentAlignment="Center"/>
+                                        <TextBlock Text="{Binding Help}" FontSize="11.5"
+                                                   IsVisible="{Binding HasHelp}" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource Faint}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4,0,0">
+                            <Button Classes="accent" Content="Connect" Command="{Binding ConnectCommand}"/>
+                            <Button Classes="ghost" Content="Disconnect"
+                                    IsVisible="{Binding SelectedConnected}"
+                                    Command="{Binding DisconnectCommand}"/>
+                        </StackPanel>
+
+                        <Button Classes="flat" HorizontalAlignment="Left"
+                                Content="{Binding HelpText}" IsVisible="{Binding HasHelp}"
+                                Command="{Binding OpenHelpCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- ============ MCP ============ -->
+                <StackPanel IsVisible="{Binding IsMcpTab}" Spacing="16">
+                    <StackPanel Spacing="3">
+                        <TextBlock Text="MCP servers" FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Ink}"/>
+                        <TextBlock Text="Model Context Protocol tool servers. Registered here and stored locally."
+                                   FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- empty -->
+                    <Border Classes="card" Padding="16" IsVisible="{Binding !HasServers}">
+                        <TextBlock Text="No MCP servers yet. Add one below." FontSize="13"
+                                   Foreground="{DynamicResource Muted}"/>
+                    </Border>
+
+                    <!-- server list -->
+                    <ItemsControl ItemsSource="{Binding Servers}" IsVisible="{Binding HasServers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:McpRowViewModel">
+                                <Border Classes="card" Padding="14,10" Margin="0,0,0,8">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                        <Border Grid.Column="0" CornerRadius="5" Padding="6,1" VerticalAlignment="Center"
+                                                Background="{DynamicResource Paper}"
+                                                BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                                                Margin="0,0,10,0">
+                                            <TextBlock Text="{Binding TransportText}" FontSize="10.5" Classes="mono"
+                                                       Foreground="{DynamicResource Muted}"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontSize="13.5" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource Ink}"/>
+                                            <TextBlock Text="{Binding Detail}" FontSize="11.5" Classes="mono"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{DynamicResource Faint}"/>
+                                        </StackPanel>
+                                        <ToggleSwitch Grid.Column="2" IsChecked="{Binding Enabled, Mode=TwoWay}"
+                                                      OnContent="" OffContent="" VerticalAlignment="Center"
+                                                      Margin="0,0,6,0"/>
+                                        <Button Grid.Column="3" Classes="iconbtn" Width="28" Height="28"
+                                                VerticalAlignment="Center" ToolTip.Tip="Remove"
+                                                Command="{Binding $parent[ItemsControl].((vm:IntegrationsViewModel)DataContext).RemoveServerCommand}"
+                                                CommandParameter="{Binding}">
+                                            <Path Classes="ico" Width="13" Height="13" Data="{StaticResource IcoX}"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- add server -->
+                    <Border Classes="card" Padding="16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Classes="eyebrow" Text="ADD A SERVER"/>
+                            <Grid ColumnDefinitions="*,140" >
+                                <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,10,0">
+                                    <TextBlock Text="Name" FontSize="12" Foreground="{DynamicResource Muted}"/>
+                                    <TextBox Text="{Binding NewName, Mode=TwoWay}" Height="36" Padding="10,0"
+                                             PlaceholderText="filesystem" VerticalContentAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <TextBlock Text="Transport" FontSize="12" Foreground="{DynamicResource Muted}"/>
+                                    <ComboBox ItemsSource="{Binding TransportOptions}"
+                                              SelectedItem="{Binding NewTransport, Mode=TwoWay}"
+                                              HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- stdio fields -->
+                            <StackPanel Spacing="4" IsVisible="{Binding IsStdio}">
+                                <TextBlock Text="Command" FontSize="12" Foreground="{DynamicResource Muted}"/>
+                                <TextBox Text="{Binding NewCommand, Mode=TwoWay}" Height="36" Padding="10,0"
+                                         PlaceholderText="npx" VerticalContentAlignment="Center"/>
+                                <TextBlock Text="Arguments" FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/>
+                                <TextBox Text="{Binding NewArgs, Mode=TwoWay}" Height="36" Padding="10,0"
+                                         PlaceholderText="-y @modelcontextprotocol/server-filesystem ~/docs"
+                                         VerticalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- sse fields -->
+                            <StackPanel Spacing="4" IsVisible="{Binding IsSse}">
+                                <TextBlock Text="Server URL" FontSize="12" Foreground="{DynamicResource Muted}"/>
+                                <TextBox Text="{Binding NewUrl, Mode=TwoWay}" Height="36" Padding="10,0"
+                                         PlaceholderText="https://example.com/mcp" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <Button Classes="accent" Content="Add server" HorizontalAlignment="Left"
+                                    IsEnabled="{Binding CanAddServer}" Command="{Binding AddServerCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+            </Panel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

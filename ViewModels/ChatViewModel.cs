@@ -32,7 +32,11 @@ public class ChatViewModel : ViewModelBase
                 LoadActiveSession();
             if (e.PropertyName is nameof(AppState.IsRunning) or nameof(AppState.ActiveSession))
                 RaiseCommandState();
+            if (e.PropertyName == AppState.ModelsChangedSignal)
+                RefreshModelPicks();
         };
+
+        RefreshModelPicks();
 
         _app.ComposerAttachments.CollectionChanged += (_, _) =>
         {
@@ -48,6 +52,41 @@ public class ChatViewModel : ViewModelBase
     public AppState App => _app;
 
     public string GreetingText => "What should we build?";
+
+    // Permission mode shown in the composer (mirrors OpenWorker's approval control).
+    private string _approvalModeLabel = "Ask for approval";
+    public string ApprovalModeLabel
+    {
+        get => _approvalModeLabel;
+        set => SetField(ref _approvalModeLabel, value);
+    }
+
+    // ----- Model picker (composer model chip flyout) -----
+    public ObservableCollection<ModelPickViewModel> ModelPicks { get; } = new();
+    public bool HasModelPicks => ModelPicks.Count > 0;
+
+    public RelayCommand SelectModelCommand => new(p =>
+    {
+        if (p is not ModelPickViewModel pick) return;
+        _app.Settings.SelectedProvider = pick.ProviderId;
+        _app.Settings.SelectedModel = pick.ModelId;
+        _ = _app.SettingsStore.SaveAsync(_app.Settings);
+        _app.NotifyModelsChanged();
+        RefreshModelPicks();
+    });
+
+    public void RefreshModelPicks()
+    {
+        ModelPicks.Clear();
+        foreach (var def in ModelProviderRegistry.All)
+        {
+            if (!_app.ProviderStore.IsConfigured(def.Id)) continue;
+            foreach (var m in def.Models)
+                ModelPicks.Add(new ModelPickViewModel(def.Id, m.Id, def.Title, m.Label,
+                    _app.Settings.SelectedProvider == def.Id && _app.Settings.SelectedModel == m.Id));
+        }
+        OnPropertyChanged(nameof(HasModelPicks));
+    }
 
     private string _sessionTitle = "New session";
     public string SessionTitle
@@ -225,6 +264,21 @@ public class ChatViewModel : ViewModelBase
         return "";
     }
 
+    /// <summary>Session history as chat turns for the native client, excluding the
+    /// in-flight (empty) assistant placeholder. Capped to the last 20 turns.</summary>
+    private static List<ChatTurn> BuildTurns(Session session, Message inFlight)
+    {
+        var turns = new List<ChatTurn>();
+        foreach (var m in session.Messages)
+        {
+            if (ReferenceEquals(m, inFlight)) continue;
+            if (string.IsNullOrWhiteSpace(m.Content)) continue;
+            if (m.Role is not ("user" or "assistant")) continue;
+            turns.Add(new ChatTurn(m.Role, m.Content));
+        }
+        return turns.Count > 20 ? turns.GetRange(turns.Count - 20, 20) : turns;
+    }
+
     private void OpenResponsePreview(MessageViewModel m)
     {
         Preview = new PreviewViewModel(SessionTitle, m.Content, markdown: true);
@@ -305,9 +359,9 @@ public class ChatViewModel : ViewModelBase
         var session = _app.ActiveSession;
         if (session == null || !CanSend) return;
 
-        if (_app.KiroStatus != KiroStatus.Ready)
+        if (!_app.HasNativeModel && _app.KiroStatus != KiroStatus.Ready)
         {
-            AppendErrorMessage("kiro binary not found — configure path in Settings.");
+            AppendErrorMessage("No model available — add an API key in Settings ▸ Models, or configure the kiro binary path.");
             return;
         }
 
@@ -360,40 +414,67 @@ public class ChatViewModel : ViewModelBase
 
         try
         {
-            // The full assembled prompt (skills + history + attachments + task)
-            // is passed as the headless chat argument.
-            var prompt = _app.PromptBuilder.Build(session, text, attachmentPaths);
-            var runner = new KiroRunner(_app.KiroBinaryPath);
-
-            await foreach (var line in runner.RunAsync(prompt, outputFolder, _app.RunCts.Token))
+            if (_app.HasNativeModel)
             {
-                var clean = CleanLine(line);
-                if (ShouldSkipLine(clean)) continue;
-                assistantMsg.Content += (assistantMsg.Content.Length > 0 ? "\n" : "") + clean;
-                await Dispatcher.UIThread.InvokeAsync(() =>
+                // Native multi-provider path: skills → system prompt, history → turns,
+                // stream the completion straight from the model API.
+                var system = _app.PromptBuilder.BuildSystemPrompt(session);
+                var turns = BuildTurns(session, assistantMsg);
+
+                await foreach (var delta in _app.ModelChat.StreamAsync(
+                    _app.Settings.SelectedProvider, _app.Settings.SelectedModel,
+                    system, turns, _app.RunCts.Token))
                 {
-                    assistantVm.Content = assistantMsg.Content.TrimStart('\n');
-                    ScrollToEndRequested?.Invoke();
-                });
-            }
+                    assistantMsg.Content += delta;
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        assistantVm.Content = assistantMsg.Content;
+                        ScrollToEndRequested?.Invoke();
+                    });
+                }
 
-            assistantMsg.Content = assistantMsg.Content.Trim();
-            await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Content = assistantMsg.Content);
-
-            // Detect any files kiro created in the output folder.
-            var produced = KiroRunner.NewFilesSince(outputFolder, before);
-            if (produced.Count > 0)
-            {
-                assistantMsg.OutputFilePaths = produced;
-                await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Sync());
-            }
-
-            if (string.IsNullOrWhiteSpace(assistantMsg.Content))
-            {
-                assistantMsg.Content = produced.Count > 0
-                    ? "Done. See the generated file(s) below."
-                    : "kiro returned no output.";
+                assistantMsg.Content = assistantMsg.Content.Trim();
+                if (string.IsNullOrWhiteSpace(assistantMsg.Content))
+                    assistantMsg.Content = "(the model returned no text)";
                 await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Content = assistantMsg.Content);
+            }
+            else
+            {
+                // The full assembled prompt (skills + history + attachments + task)
+                // is passed as the headless chat argument.
+                var prompt = _app.PromptBuilder.Build(session, text, attachmentPaths);
+                var runner = new KiroRunner(_app.KiroBinaryPath);
+
+                await foreach (var line in runner.RunAsync(prompt, outputFolder, _app.RunCts.Token))
+                {
+                    var clean = CleanLine(line);
+                    if (ShouldSkipLine(clean)) continue;
+                    assistantMsg.Content += (assistantMsg.Content.Length > 0 ? "\n" : "") + clean;
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        assistantVm.Content = assistantMsg.Content.TrimStart('\n');
+                        ScrollToEndRequested?.Invoke();
+                    });
+                }
+
+                assistantMsg.Content = assistantMsg.Content.Trim();
+                await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Content = assistantMsg.Content);
+
+                // Detect any files kiro created in the output folder.
+                var produced = KiroRunner.NewFilesSince(outputFolder, before);
+                if (produced.Count > 0)
+                {
+                    assistantMsg.OutputFilePaths = produced;
+                    await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Sync());
+                }
+
+                if (string.IsNullOrWhiteSpace(assistantMsg.Content))
+                {
+                    assistantMsg.Content = produced.Count > 0
+                        ? "Done. See the generated file(s) below."
+                        : "kiro returned no output.";
+                    await Dispatcher.UIThread.InvokeAsync(() => assistantVm.Content = assistantMsg.Content);
+                }
             }
         }
         catch (OperationCanceledException)

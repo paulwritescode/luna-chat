@@ -57,6 +57,7 @@ public class MainWindowViewModel : ViewModelBase
 
     public ChatViewModel Chat { get; private set; } = null!;
     public FileBrowserViewModel FileBrowser { get; private set; } = null!;
+    public IntegrationsViewModel Integrations { get; private set; } = null!;
     public SettingsViewModel Settings { get; private set; } = null!;
 
     public ObservableCollection<SessionListItemViewModel> SessionItems { get; } = new();
@@ -141,10 +142,12 @@ public class MainWindowViewModel : ViewModelBase
     // Nav state
     public bool IsChatRoute => App.CurrentRoute == NavRoute.Chat;
     public bool IsFilesRoute => App.CurrentRoute == NavRoute.Files;
+    public bool IsIntegrationsRoute => App.CurrentRoute == NavRoute.Integrations;
     public bool IsSettingsRoute => App.CurrentRoute == NavRoute.Settings;
 
     public RelayCommand NavChatCommand => new(_ => Navigate(NavRoute.Chat));
     public RelayCommand NavFilesCommand => new(_ => Navigate(NavRoute.Files));
+    public RelayCommand NavIntegrationsCommand => new(_ => Navigate(NavRoute.Integrations));
     public RelayCommand NavSettingsCommand => new(_ => Navigate(NavRoute.Settings));
     public RelayCommand NewSessionCommand => new(_ => NewSession());
 
@@ -173,9 +176,11 @@ public class MainWindowViewModel : ViewModelBase
         _dialogs = dialogs;
         Chat = new ChatViewModel(App, dialogs);
         FileBrowser = new FileBrowserViewModel(App, dialogs);
+        Integrations = new IntegrationsViewModel(App, dialogs);
         Settings = new SettingsViewModel(App, dialogs);
         OnPropertyChanged(nameof(Chat));
         OnPropertyChanged(nameof(FileBrowser));
+        OnPropertyChanged(nameof(Integrations));
         OnPropertyChanged(nameof(Settings));
 
         SetTheme(App.Settings.Theme);
@@ -186,6 +191,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 OnPropertyChanged(nameof(IsChatRoute));
                 OnPropertyChanged(nameof(IsFilesRoute));
+                OnPropertyChanged(nameof(IsIntegrationsRoute));
                 OnPropertyChanged(nameof(IsSettingsRoute));
             }
             if (e.PropertyName is nameof(AppState.Sessions) or nameof(AppState.ActiveSession))

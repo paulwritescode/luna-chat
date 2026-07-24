@@ -14,6 +14,153 @@
             <TextBlock Text="Settings" FontSize="22" FontWeight="SemiBold"
                        Foreground="{DynamicResource TextPrimary}"/>
 
+            <!-- ===== Models (BYOK) ===== -->
+            <StackPanel Spacing="10" DataContext="{Binding Models}">
+                <StackPanel Spacing="2">
+                    <TextBlock Classes="section" Text="models"/>
+                    <TextBlock Text="Bring your own API key. Pick a provider, paste a key, switch anytime."
+                               FontSize="12.5" Foreground="{DynamicResource Muted}"/>
+                </StackPanel>
+                <Border Height="1" Background="{DynamicResource BorderSubtle}"/>
+
+                <!-- Gallery -->
+                <ItemsControl ItemsSource="{Binding Providers}" IsVisible="{Binding IsGallery}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ProviderCardViewModel">
+                            <Button Classes="providercard" Margin="0,0,8,8"
+                                    Command="{Binding $parent[ItemsControl].((vm:ModelsViewModel)DataContext).OpenProviderCommand}"
+                                    CommandParameter="{Binding}">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Border Grid.Column="0" Width="34" Height="34" CornerRadius="9"
+                                            Background="{DynamicResource Paper}"
+                                            BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                                            Margin="0,0,10,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Initial}" FontSize="15" FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource Muted}"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource Ink}"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                                     Fill="{DynamicResource Ok}"
+                                                     IsVisible="{Binding IsConnected}"/>
+                                            <TextBlock Text="{Binding Status}" FontSize="11.5"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource Faint}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="›" FontSize="16" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource Faint}"/>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Provider form -->
+                <StackPanel Spacing="10" IsVisible="{Binding IsForm}">
+                    <Button Classes="flat" HorizontalAlignment="Left" Content="‹ All providers"
+                            Command="{Binding BackCommand}"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="38" Height="38" CornerRadius="9"
+                                Background="{DynamicResource Paper}"
+                                BorderBrush="{DynamicResource Line}" BorderThickness="1">
+                            <TextBlock Text="{Binding Initial}" FontSize="17" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource Muted}"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding FormTitle}" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Ink}"/>
+                            <TextBlock Text="{Binding FormBlurb}" FontSize="12"
+                                       Foreground="{DynamicResource Muted}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- fields -->
+                    <ItemsControl ItemsSource="{Binding Fields}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ProviderFieldViewModel">
+                                <StackPanel Spacing="4" Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding Label}" FontSize="12"
+                                               Foreground="{DynamicResource Muted}"/>
+                                    <TextBox Text="{Binding Value, Mode=TwoWay}"
+                                             PasswordChar="{Binding PasswordChar}"
+                                             PlaceholderText="{Binding Placeholder}"
+                                             Height="38" Padding="10,0" VerticalContentAlignment="Center"/>
+                                    <TextBlock Text="{Binding Help}" FontSize="11.5"
+                                               IsVisible="{Binding HasHelp}" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource Faint}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- test + status -->
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Classes="accent" Content="{Binding TestButtonText}"
+                                IsEnabled="{Binding CanTest}" Command="{Binding TestCommand}"/>
+                        <TextBlock Text="testing…" FontSize="12.5" VerticalAlignment="Center"
+                                   IsVisible="{Binding Testing}" Foreground="{DynamicResource Muted}"/>
+                        <Border CornerRadius="999" Padding="8,2" VerticalAlignment="Center"
+                                Background="{DynamicResource OkSoft}" IsVisible="{Binding HasOk}">
+                            <TextBlock Text="{Binding OkText}" FontSize="11.5" FontWeight="Medium"
+                                       Foreground="{DynamicResource Ok}"/>
+                        </Border>
+                        <TextBlock Text="{Binding ErrorText}" FontSize="12.5" VerticalAlignment="Center"
+                                   IsVisible="{Binding HasError}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource Danger}"/>
+                    </StackPanel>
+
+                    <Button Classes="flat" HorizontalAlignment="Left"
+                            Content="{Binding KeyHelpText}" IsVisible="{Binding HasKeyHelp}"
+                            Command="{Binding OpenKeyHelpCommand}"/>
+
+                    <!-- model activation -->
+                    <StackPanel Spacing="6" IsVisible="{Binding ShowModelList}">
+                        <TextBlock Classes="eyebrow" Text="USE A MODEL" Margin="0,4,0,0"/>
+                        <ItemsControl ItemsSource="{Binding CuratedModels}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CuratedModelViewModel">
+                                    <Button Classes="menurow" HorizontalAlignment="Stretch"
+                                            Command="{Binding $parent[ItemsControl].((vm:ModelsViewModel)DataContext).UseModelCommand}"
+                                            CommandParameter="{Binding}">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="13"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource Ink}"/>
+                                            <Border Grid.Column="1" CornerRadius="999" Padding="8,1"
+                                                    Background="{DynamicResource AccentSoft}"
+                                                    IsVisible="{Binding IsActive}">
+                                                <TextBlock Text="active" FontSize="11" FontWeight="Medium"
+                                                           Foreground="{DynamicResource Accent}"/>
+                                            </Border>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <Button Classes="flat" HorizontalAlignment="Left" Content="Remove key"
+                            IsVisible="{Binding IsConnected}"
+                            Foreground="{DynamicResource Danger}"
+                            Command="{Binding RemoveKeyCommand}"/>
+                </StackPanel>
+
+                <TextBlock FontSize="11.5" Foreground="{DynamicResource Faint}">
+                    <Run Text="Keys are stored in "/><Run Text="{Binding BackendName}"/><Run Text="."/>
+                </TextBlock>
+            </StackPanel>
+
             <!-- ===== kiro Configuration ===== -->
             <StackPanel Spacing="10">
                 <TextBlock Classes="section" Text="kiro configuration"/>

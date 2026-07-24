@@ -8,11 +8,75 @@
              x:Class="LunaChat.Views.ComposerCard"
              x:DataType="vm:ChatViewModel">
 
-    <Border Name="CardRoot" Background="{DynamicResource BgComposer}"
-            BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1"
+    <Border Name="CardRoot" Background="{DynamicResource Panel}"
+            BorderBrush="{DynamicResource Line}" BorderThickness="1"
             HorizontalAlignment="Stretch"
-            CornerRadius="22" Padding="8" PointerPressed="OnCardPressed">
+            CornerRadius="18" Padding="8" PointerPressed="OnCardPressed"
+            BoxShadow="0 1 3 0 #14000000">
         <StackPanel Spacing="6">
+
+            <!-- meta chip row: working directory · permission mode · model -->
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="4,2,4,0">
+                <Button Classes="metachip"
+                        Command="{Binding OpenOutputFolderCommand}"
+                        ToolTip.Tip="Output folder for this session">
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <Path Classes="ico" Width="13" Height="13" Data="{StaticResource IcoFolder}"/>
+                        <TextBlock Text="{Binding OutputFolderName}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="metachip tinted" ToolTip.Tip="How the coworker asks before acting">
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ApprovalModeLabel}" VerticalAlignment="Center"/>
+                        <TextBlock Text="▾" FontSize="10" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="metachip" HorizontalAlignment="Right"
+                        ToolTip.Tip="Model for this session">
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding App.SelectedModelDisplay}" Classes="mono"
+                                   FontSize="11.5" VerticalAlignment="Center"/>
+                        <TextBlock Text="▾" FontSize="10" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <Flyout Placement="TopEdgeAlignedRight">
+                            <Border Width="280" Background="{DynamicResource Panel}"
+                                    BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                                    CornerRadius="12" Padding="6">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Classes="eyebrow" Text="MODEL" Margin="10,6,10,4"/>
+                                    <TextBlock Text="No models set up yet — add an API key in Settings ▸ Models"
+                                               IsVisible="{Binding !HasModelPicks}" FontSize="12"
+                                               Margin="10,0,10,6" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource Faint}"/>
+                                    <ItemsControl ItemsSource="{Binding ModelPicks}" MaxHeight="280">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:ModelPickViewModel">
+                                                <Button Classes="menurow"
+                                                        Command="{Binding $parent[ItemsControl].((vm:ChatViewModel)DataContext).SelectModelCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <StackPanel Grid.Column="0">
+                                                            <TextBlock Text="{Binding ModelLabel}" FontSize="13"
+                                                                       Foreground="{DynamicResource Ink}"/>
+                                                            <TextBlock Text="{Binding Subtitle}" FontSize="11"
+                                                                       Foreground="{DynamicResource Faint}"/>
+                                                        </StackPanel>
+                                                        <Path Grid.Column="1" Classes="ico" Width="14" Height="14"
+                                                              Data="{StaticResource IcoCheck}"
+                                                              IsVisible="{Binding IsSelected}"
+                                                              Stroke="{DynamicResource Accent}"/>
+                                                    </Grid>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </StackPanel>
 
             <!-- attachments (portrait thumbnails, above the input) -->
             <ScrollViewer HorizontalScrollBarVisibility="Auto"

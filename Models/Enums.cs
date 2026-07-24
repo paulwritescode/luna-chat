@@ -4,6 +4,7 @@ public enum NavRoute
 {
     Chat,
     Files,
+    Integrations,
     Settings
 }
 

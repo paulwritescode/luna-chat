@@ -26,91 +26,128 @@
                 IsVisible="{Binding IsSidebarVisible}"
                 BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,0,1,0"
                 ClipToBounds="True">
-            <Grid RowDefinitions="44,Auto,Auto,Auto,*,Auto" MinWidth="263">
+            <Grid RowDefinitions="44,Auto,Auto,Auto,*,Auto,Auto" MinWidth="263">
 
-                <!-- top toolbar -->
-                <Grid Grid.Row="0" Name="SidebarTop" ColumnDefinitions="Auto,Auto,Auto,*">
+                <!-- brand header / drag strip (traffic-light clearance on macOS) -->
+                <Grid Grid.Row="0" Name="SidebarTop" ColumnDefinitions="Auto,Auto,*,Auto">
                     <Button Grid.Column="0" Name="CollapseButton" Classes="iconbtn"
                             Command="{Binding ToggleSidebarCommand}" ToolTip.Tip="Collapse sidebar">
                         <Path Classes="ico" Data="{StaticResource IcoPanel}"/>
                     </Button>
-                    <Button Grid.Column="1" Classes="iconbtn" ToolTip.Tip="Back">
-                        <Path Classes="ico" Data="{StaticResource IcoArrowLeft}"/>
-                    </Button>
-                    <Button Grid.Column="2" Classes="iconbtn" ToolTip.Tip="Forward">
-                        <Path Classes="ico" Data="{StaticResource IcoArrowRight}" Opacity="0.4"/>
-                    </Button>
+                    <Border Grid.Column="1" Width="24" Height="24" CornerRadius="7"
+                            Background="{DynamicResource AccentSoft}" Margin="4,0,8,0"
+                            VerticalAlignment="Center">
+                        <Path Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center"
+                              VerticalAlignment="Center" Data="{StaticResource IcoCheck}"
+                              Stroke="{DynamicResource Accent}" StrokeThickness="2.2"
+                              StrokeLineCap="Round" StrokeJoin="Round" Fill="Transparent"/>
+                    </Border>
+                    <TextBlock Grid.Column="2" Text="luna-chat" FontSize="14" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Foreground="{DynamicResource Ink}"/>
                 </Grid>
 
-                <!-- nav -->
-                <StackPanel Grid.Row="1" Margin="0,4,0,0">
-                    <Button Classes="nav" Classes.active="{Binding IsChatRoute}"
-                            Command="{Binding NewSessionCommand}">
-                        <Grid ColumnDefinitions="Auto,*,Auto">
-                            <Path Grid.Column="0" Classes="ico" Data="{StaticResource IcoCompose}" Margin="0,0,10,0"/>
-                            <TextBlock Grid.Column="1" Text="New session" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="⌘N" VerticalAlignment="Center"
-                                       FontSize="12" Foreground="{DynamicResource TextTertiary}"/>
-                        </Grid>
-                    </Button>
-                    <Button Classes="nav" Command="{Binding ToggleSearchCommand}">
+                <!-- New session (filled accent) -->
+                <Button Grid.Row="1" Classes="accent" Margin="12,6,12,2"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                        Command="{Binding NewSessionCommand}">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Path Grid.Column="0" Width="15" Height="15" Stretch="Uniform" Margin="0,0,9,0"
+                              Data="{StaticResource IcoPlus}" Stroke="#FFFFFF" StrokeThickness="2"
+                              StrokeLineCap="Round" Fill="Transparent" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="New session" VerticalAlignment="Center"
+                                   Foreground="#FFFFFF" FontWeight="Medium"/>
+                        <TextBlock Grid.Column="2" Text="⌘N" VerticalAlignment="Center"
+                                   FontSize="11.5" Foreground="#CCFFFFFF"/>
+                    </Grid>
+                </Button>
+
+                <!-- Search pill -->
+                <Button Grid.Row="2" Classes="metachip" Margin="12,4,12,0" Height="34"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                        Command="{Binding ToggleSearchCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                        <Path Classes="ico" Width="14" Height="14" Data="{StaticResource IcoSearch}"/>
+                        <TextBlock Text="Search" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Faint}"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- search box (revealed) -->
+                <Border Grid.Row="3" Margin="12,6,12,0" IsVisible="{Binding IsSearchVisible}">
+                    <TextBox Text="{Binding SearchText, Mode=TwoWay}"
+                             PlaceholderText="Search sessions" Height="34" Padding="10,0"
+                             VerticalContentAlignment="Center"/>
+                </Border>
+
+                <!-- session list -->
+                <ScrollViewer Grid.Row="4" Padding="0,0,0,4">
+                    <StackPanel Margin="10,14,10,0" Spacing="1">
+                        <TextBlock Classes="eyebrow" Text="RECENT" Margin="8,0,0,4"/>
+                        <ItemsControl ItemsSource="{Binding SessionItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SessionListItemViewModel">
+                                    <Button Classes="session" Classes.active="{Binding IsActive}"
+                                            Height="38"
+                                            Command="{Binding $parent[ItemsControl].((vm:MainWindowViewModel)DataContext).SelectSessionCommand}"
+                                            CommandParameter="{Binding}"
+                                            ToolTip.Tip="{Binding Name}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <Border Grid.Column="0" Width="24" Height="24" CornerRadius="6"
+                                                    Background="{DynamicResource Panel}"
+                                                    BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                                                    Margin="0,0,9,0" VerticalAlignment="Center">
+                                                <Path Width="13" Height="13" Stretch="Uniform"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      Data="{StaticResource IcoFile}"
+                                                      Stroke="{DynamicResource Faint}" StrokeThickness="1.7"
+                                                      StrokeLineCap="Round" StrokeJoin="Round" Fill="Transparent"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center" FontSize="13"
+                                                       Foreground="{DynamicResource Ink}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding DateBadge}"
+                                                       VerticalAlignment="Center" FontSize="11"
+                                                       Foreground="{DynamicResource Faint}"/>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- bottom nav -->
+                <StackPanel Grid.Row="5" Margin="8,4,8,4" Spacing="1">
+                    <Border Height="1" Background="{DynamicResource Line}" Margin="4,0,4,6"/>
+                    <Button Classes="nav" Classes.active="{Binding IsIntegrationsRoute}"
+                            Command="{Binding NavIntegrationsCommand}">
                         <Grid ColumnDefinitions="Auto,*">
-                            <Path Grid.Column="0" Classes="ico" Data="{StaticResource IcoSearch}" Margin="0,0,10,0"/>
-                            <TextBlock Grid.Column="1" Text="Search" VerticalAlignment="Center"/>
+                            <Path Grid.Column="0" Classes="ico" Width="15" Height="15"
+                                  Data="{StaticResource IcoBranch}" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="1" Text="Integrations" VerticalAlignment="Center"/>
                         </Grid>
                     </Button>
                     <Button Classes="nav" Classes.active="{Binding IsFilesRoute}"
                             Command="{Binding NavFilesCommand}">
                         <Grid ColumnDefinitions="Auto,*">
-                            <Path Grid.Column="0" Classes="ico" Data="{StaticResource IcoFolder}" Margin="0,0,10,0"/>
+                            <Path Grid.Column="0" Classes="ico" Width="15" Height="15"
+                                  Data="{StaticResource IcoFolder}" Margin="0,0,10,0"/>
                             <TextBlock Grid.Column="1" Text="Files" VerticalAlignment="Center"/>
                         </Grid>
                     </Button>
                     <Button Classes="nav" Classes.active="{Binding IsSettingsRoute}"
                             Command="{Binding NavSettingsCommand}">
                         <Grid ColumnDefinitions="Auto,*">
-                            <Path Grid.Column="0" Classes="ico" Data="{StaticResource IcoSettings}" Margin="0,0,10,0"/>
+                            <Path Grid.Column="0" Classes="ico" Width="15" Height="15"
+                                  Data="{StaticResource IcoSettings}" Margin="0,0,10,0"/>
                             <TextBlock Grid.Column="1" Text="Settings" VerticalAlignment="Center"/>
                         </Grid>
                     </Button>
                 </StackPanel>
 
-                <!-- search box -->
-                <Border Grid.Row="2" Margin="12,6,12,0" IsVisible="{Binding IsSearchVisible}">
-                    <TextBox Text="{Binding SearchText, Mode=TwoWay}"
-                             PlaceholderText="Search sessions" Height="34" Padding="10,0"
-                             VerticalContentAlignment="Center"/>
-                </Border>
-
-                <!-- section label -->
-                <TextBlock Grid.Row="3" Classes="section" Text="Sessions" Margin="20,16,16,6"/>
-
-                <!-- session list -->
-                <ScrollViewer Grid.Row="4">
-                    <ItemsControl ItemsSource="{Binding SessionItems}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:SessionListItemViewModel">
-                                <Button Classes="session" Classes.active="{Binding IsActive}"
-                                        Command="{Binding $parent[ItemsControl].((vm:MainWindowViewModel)DataContext).SelectSessionCommand}"
-                                        CommandParameter="{Binding}"
-                                        ToolTip.Tip="{Binding Name}">
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0" Text="{Binding Name}"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource TextPrimary}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding DateBadge}"
-                                                   VerticalAlignment="Center" FontSize="11.5"
-                                                   Foreground="{DynamicResource TextTertiary}"/>
-                                    </Grid>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
                 <!-- bottom: status + theme toggle -->
-                <Border Grid.Row="5" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0"
+                <Border Grid.Row="6" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0"
                         Padding="12,8">
                     <Grid ColumnDefinitions="Auto,*,Auto">
                         <Button Grid.Column="0" Grid.ColumnSpan="2" Classes="nav" Margin="0"
@@ -190,6 +227,8 @@
                                 IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsChatRoute}"/>
                 <views:FileBrowserView Grid.Row="1" DataContext="{Binding FileBrowser}"
                                        IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsFilesRoute}"/>
+                <views:IntegrationsView Grid.Row="1" DataContext="{Binding Integrations}"
+                                        IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsIntegrationsRoute}"/>
                 <views:SettingsView Grid.Row="1" DataContext="{Binding Settings}"
                                     IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsSettingsRoute}"/>
 

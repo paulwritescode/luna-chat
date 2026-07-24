@@ -20,4 +20,8 @@ public class AppSettings
 
     /// <summary>"System" | "Light" | "Dark"</summary>
     public string Theme { get; set; } = "System";
+
+    // Selected model (native multi-provider client). Empty = fall back to kiro-cli.
+    public string SelectedProvider { get; set; } = "";
+    public string SelectedModel { get; set; } = "";
 }

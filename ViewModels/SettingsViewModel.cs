@@ -28,6 +28,8 @@ public class SettingsViewModel : ViewModelBase
         _monoFont = s.MonoFont;
         _theme = string.IsNullOrEmpty(s.Theme) ? "System" : s.Theme;
 
+        Models = new ModelsViewModel(app, dialogs);
+
         TestConnectionCommand = new AsyncRelayCommand(_ => TestConnectionAsync());
         SaveCommand = new AsyncRelayCommand(_ => SaveAsync());
         BrowseBinaryCommand = new AsyncRelayCommand(_ => BrowseBinaryAsync());
@@ -36,6 +38,8 @@ public class SettingsViewModel : ViewModelBase
         BrowseOutputCommand = new AsyncRelayCommand(_ => BrowseFolderAsync(v => OutputFolder = v));
         CheckUpdatesCommand = new RelayCommand(_ => OpenReleases());
     }
+
+    public ModelsViewModel Models { get; }
 
     private string _kiroBinaryPath;
     public string KiroBinaryPath { get => _kiroBinaryPath; set => SetField(ref _kiroBinaryPath, value); }

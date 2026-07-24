@@ -17,6 +17,10 @@ public class AppState : ViewModelBase
         SkillLoader = new SkillLoader();
         Settings = SettingsStore.Load();
         PromptBuilder = new PromptBuilder(id => Skills.FirstOrDefault(s => s.Id == id));
+        ProviderStore = new ProviderStore();
+        ModelChat = new ModelChatService(ProviderStore);
+        ConnectorStore = new ConnectorStore();
+        McpStore = new McpStore();
     }
 
     // Services
@@ -24,6 +28,39 @@ public class AppState : ViewModelBase
     public SessionStore SessionStore { get; }
     public SkillLoader SkillLoader { get; }
     public PromptBuilder PromptBuilder { get; }
+    public ProviderStore ProviderStore { get; }
+    public ModelChatService ModelChat { get; }
+    public ConnectorStore ConnectorStore { get; }
+    public McpStore McpStore { get; }
+
+    /// <summary>True when a native model is selected AND its provider has stored credentials.</summary>
+    public bool HasNativeModel =>
+        !string.IsNullOrEmpty(Settings.SelectedProvider) &&
+        !string.IsNullOrEmpty(Settings.SelectedModel) &&
+        ProviderStore.IsConfigured(Settings.SelectedProvider);
+
+    /// <summary>Label shown on the composer's model chip.</summary>
+    public string SelectedModelDisplay
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Settings.SelectedModel)) return "kiro (local)";
+            var def = ModelProviderRegistry.Find(Settings.SelectedProvider);
+            var m = def?.Models.FirstOrDefault(x => x.Id == Settings.SelectedModel);
+            return m?.Label ?? Settings.SelectedModel;
+        }
+    }
+
+    /// <summary>Raised after a provider is connected/removed or the active model changes,
+    /// so the composer chip + model picker refresh.</summary>
+    public void NotifyModelsChanged()
+    {
+        OnPropertyChanged(nameof(SelectedModelDisplay));
+        OnPropertyChanged(nameof(HasNativeModel));
+        OnPropertyChanged(ModelsChangedSignal);
+    }
+
+    public const string ModelsChangedSignal = "ModelsChanged";
 
     // Settings
     public AppSettings Settings { get; private set; }

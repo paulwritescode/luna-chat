@@ -272,8 +272,91 @@
         <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
     </Style>
 
+    <!-- ===== Eyebrow label (OpenWorker: uppercase, tracked, faint) ===== -->
+    <Style Selector="TextBlock.eyebrow">
+        <Setter Property="FontSize" Value="10.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Faint}"/>
+        <Setter Property="LetterSpacing" Value="0.6"/>
+    </Style>
+
     <Style Selector="TextBlock.mono">
         <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+    </Style>
+
+    <!-- ===== Card surface (OpenWorker rounded-xl2 panel) ===== -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource Panel}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="14"/>
+    </Style>
+
+    <!-- ===== Accent (filled blue) button — New session, Connect, Save ===== -->
+    <Style Selector="Button.accent">
+        <Setter Property="Background" Value="{DynamicResource Accent}"/>
+        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.accent:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Accent}"/>
+        <Setter Property="TextElement.Foreground" Value="#FFFFFF"/>
+        <Setter Property="Opacity" Value="0.92"/>
+    </Style>
+
+    <!-- ===== Composer meta chip (directory / model / approval pills) ===== -->
+    <Style Selector="Button.metachip">
+        <Setter Property="Background" Value="{DynamicResource Paper}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="CornerRadius" Value="7"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.metachip:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Paper}"/>
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Ink}"/>
+    </Style>
+    <!-- Accent-tinted variant (e.g. the active permission-mode chip) -->
+    <Style Selector="Button.metachip.tinted">
+        <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+
+    <!-- ===== Provider card (Models gallery) ===== -->
+    <Style Selector="Button.providercard">
+        <Setter Property="Background" Value="{DynamicResource Panel}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.providercard:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Panel}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LineStrong}"/>
+    </Style>
+
+    <!-- ===== Status pill (warn count etc.) ===== -->
+    <Style Selector="Border.pill">
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="Padding" Value="7,1"/>
+        <Setter Property="Background" Value="{DynamicResource WarnSoft}"/>
     </Style>
 
     <!-- ===== ScrollBar (thin, subtle) ===== -->

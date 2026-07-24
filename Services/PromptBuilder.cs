@@ -78,6 +78,27 @@ public class PromptBuilder
     }
 
     /// <summary>
+    /// Builds a system prompt from the session's active skills, for the native
+    /// chat-completions path (skills become system context; history is sent as turns).
+    /// Returns null when no skills are active.
+    /// </summary>
+    public string? BuildSystemPrompt(Session session)
+    {
+        var sb = new StringBuilder();
+        foreach (var skillId in session.ActiveSkillIds)
+        {
+            var skill = _skillResolver(skillId);
+            if (skill == null) continue;
+            sb.AppendLine($"# {skill.Name}");
+            sb.AppendLine();
+            sb.AppendLine(skill.FullContent);
+            sb.AppendLine();
+        }
+        var text = sb.ToString().Trim();
+        return text.Length == 0 ? null : text;
+    }
+
+    /// <summary>
     /// Builds the prompt and writes it to /tmp/lunachat-prompt-{uuid}.md.
     /// Returns the temp file path.
     /// </summary>

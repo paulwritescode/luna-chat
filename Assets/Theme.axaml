@@ -1,88 +1,144 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <!--
+      Design tokens ported from OpenWorker (ui-mocks/redesign.html + styles.css).
+      One source of truth for light/dark. Semantic OpenWorker names are the
+      primary tokens; the legacy Bg*/Text*/Border* keys are kept as aliases
+      mapped onto the same colors so existing views render correctly while the
+      screens are migrated to the new names.
+    -->
     <ResourceDictionary.ThemeDictionaries>
 
         <!-- ===================== LIGHT ===================== -->
         <ResourceDictionary x:Key="Light">
-            <SolidColorBrush x:Key="BgApp" Color="#FFFFFF"/>
-            <SolidColorBrush x:Key="BgSidebar" Color="#F9F9F9"/>
-            <SolidColorBrush x:Key="BgHover" Color="#ECECEC"/>
-            <SolidColorBrush x:Key="BgActive" Color="#E4E4E4"/>
-            <SolidColorBrush x:Key="BgComposer" Color="#F4F4F4"/>
-            <SolidColorBrush x:Key="BgElevated" Color="#FFFFFF"/>
-            <SolidColorBrush x:Key="BgChip" Color="#FFFFFF"/>
 
-            <SolidColorBrush x:Key="BorderSubtle" Color="#ECECEC"/>
-            <SolidColorBrush x:Key="BorderDefault" Color="#E0E0E0"/>
-            <SolidColorBrush x:Key="BorderStrong" Color="#D2D2D2"/>
+            <!-- OpenWorker semantic tokens -->
+            <SolidColorBrush x:Key="Paper"       Color="#F5F6F7"/>
+            <SolidColorBrush x:Key="Panel"       Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="Ink"         Color="#17191C"/>
+            <SolidColorBrush x:Key="Muted"       Color="#5B616B"/>
+            <SolidColorBrush x:Key="Faint"       Color="#9AA1AA"/>
+            <SolidColorBrush x:Key="Line"        Color="#E8EAED"/>
+            <SolidColorBrush x:Key="LineStrong"  Color="#D8DCE1"/>
+            <SolidColorBrush x:Key="Accent"      Color="#2563EB"/>
+            <SolidColorBrush x:Key="AccentSoft"  Color="#E9F0FD"/>
+            <SolidColorBrush x:Key="Ok"          Color="#2F7D57"/>
+            <SolidColorBrush x:Key="OkSoft"      Color="#EEF6F0"/>
+            <SolidColorBrush x:Key="OkLine"      Color="#CFE6D6"/>
+            <SolidColorBrush x:Key="WarnInk"     Color="#B45309"/>
+            <SolidColorBrush x:Key="WarnSoft"    Color="#FEF3C7"/>
+            <SolidColorBrush x:Key="Danger"      Color="#B91C1C"/>
+            <SolidColorBrush x:Key="DangerSoft"  Color="#FCEBEA"/>
+            <SolidColorBrush x:Key="TealInk"     Color="#0F766E"/>
+            <SolidColorBrush x:Key="TealSoft"    Color="#EDFAFA"/>
+            <SolidColorBrush x:Key="TealLine"    Color="#CFEBEA"/>
+            <SolidColorBrush x:Key="Solid"       Color="#17191C"/>
+            <SolidColorBrush x:Key="OnSolid"     Color="#FFFFFF"/>
 
-            <SolidColorBrush x:Key="TextPrimary" Color="#0D0D0D"/>
-            <SolidColorBrush x:Key="TextSecondary" Color="#6E6E6E"/>
-            <SolidColorBrush x:Key="TextTertiary" Color="#A4A4A4"/>
+            <!-- Legacy aliases (mapped onto tokens above) -->
+            <SolidColorBrush x:Key="BgApp"        Color="#F5F6F7"/>
+            <SolidColorBrush x:Key="BgSidebar"    Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="BgHover"      Color="#F0F2F4"/>
+            <SolidColorBrush x:Key="BgActive"     Color="#E9F0FD"/>
+            <SolidColorBrush x:Key="BgComposer"   Color="#F5F6F7"/>
+            <SolidColorBrush x:Key="BgElevated"   Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="BgChip"       Color="#FFFFFF"/>
 
-            <SolidColorBrush x:Key="Accent" Color="#7C5CFF"/>
-            <SolidColorBrush x:Key="AccentSoft" Color="#EFEBFF"/>
+            <SolidColorBrush x:Key="BorderSubtle" Color="#E8EAED"/>
+            <SolidColorBrush x:Key="BorderDefault" Color="#E8EAED"/>
+            <SolidColorBrush x:Key="BorderStrong" Color="#D8DCE1"/>
 
-            <SolidColorBrush x:Key="IconBrush" Color="#5D5D5D"/>
-            <SolidColorBrush x:Key="IconActive" Color="#0D0D0D"/>
+            <SolidColorBrush x:Key="TextPrimary"   Color="#17191C"/>
+            <SolidColorBrush x:Key="TextSecondary" Color="#5B616B"/>
+            <SolidColorBrush x:Key="TextTertiary"  Color="#9AA1AA"/>
 
-            <SolidColorBrush x:Key="SendBg" Color="#0D0D0D"/>
+            <SolidColorBrush x:Key="IconBrush"  Color="#5B616B"/>
+            <SolidColorBrush x:Key="IconActive" Color="#17191C"/>
+
+            <SolidColorBrush x:Key="SendBg" Color="#2563EB"/>
             <SolidColorBrush x:Key="SendFg" Color="#FFFFFF"/>
 
-            <SolidColorBrush x:Key="SkillActiveBg" Color="#EFEBFF"/>
-            <SolidColorBrush x:Key="SkillActiveBorder" Color="#7C5CFF"/>
-            <SolidColorBrush x:Key="SkillActiveText" Color="#4C36B3"/>
+            <SolidColorBrush x:Key="SkillActiveBg"     Color="#E9F0FD"/>
+            <SolidColorBrush x:Key="SkillActiveBorder" Color="#2563EB"/>
+            <SolidColorBrush x:Key="SkillActiveText"   Color="#2563EB"/>
 
-            <SolidColorBrush x:Key="SuccessDot" Color="#19A974"/>
-            <SolidColorBrush x:Key="DangerText" Color="#E5484D"/>
+            <SolidColorBrush x:Key="SuccessDot" Color="#2F7D57"/>
+            <SolidColorBrush x:Key="DangerText" Color="#B91C1C"/>
 
-            <SolidColorBrush x:Key="CodeBg" Color="#F4F4F4"/>
-            <SolidColorBrush x:Key="CodeText" Color="#7C5CFF"/>
+            <SolidColorBrush x:Key="CodeBg"   Color="#F5F6F7"/>
+            <SolidColorBrush x:Key="CodeText" Color="#2563EB"/>
         </ResourceDictionary>
 
         <!-- ===================== DARK ===================== -->
         <ResourceDictionary x:Key="Dark">
-            <SolidColorBrush x:Key="BgApp" Color="#212121"/>
-            <SolidColorBrush x:Key="BgSidebar" Color="#171717"/>
-            <SolidColorBrush x:Key="BgHover" Color="#2A2A2A"/>
-            <SolidColorBrush x:Key="BgActive" Color="#303030"/>
-            <SolidColorBrush x:Key="BgComposer" Color="#2F2F2F"/>
-            <SolidColorBrush x:Key="BgElevated" Color="#2A2A2A"/>
-            <SolidColorBrush x:Key="BgChip" Color="#2A2A2A"/>
 
-            <SolidColorBrush x:Key="BorderSubtle" Color="#2F2F2F"/>
-            <SolidColorBrush x:Key="BorderDefault" Color="#3A3A3A"/>
-            <SolidColorBrush x:Key="BorderStrong" Color="#4A4A4A"/>
+            <!-- OpenWorker semantic tokens -->
+            <SolidColorBrush x:Key="Paper"       Color="#131417"/>
+            <SolidColorBrush x:Key="Panel"       Color="#1C1E22"/>
+            <SolidColorBrush x:Key="Ink"         Color="#E6E8EB"/>
+            <SolidColorBrush x:Key="Muted"       Color="#9AA1AB"/>
+            <SolidColorBrush x:Key="Faint"       Color="#62686F"/>
+            <SolidColorBrush x:Key="Line"        Color="#2A2D33"/>
+            <SolidColorBrush x:Key="LineStrong"  Color="#3A3E46"/>
+            <SolidColorBrush x:Key="Accent"      Color="#4C8DFF"/>
+            <SolidColorBrush x:Key="AccentSoft"  Color="#1C2A44"/>
+            <SolidColorBrush x:Key="Ok"          Color="#58B07F"/>
+            <SolidColorBrush x:Key="OkSoft"      Color="#1A2B21"/>
+            <SolidColorBrush x:Key="OkLine"      Color="#2C4736"/>
+            <SolidColorBrush x:Key="WarnInk"     Color="#E8B04B"/>
+            <SolidColorBrush x:Key="WarnSoft"    Color="#36280F"/>
+            <SolidColorBrush x:Key="Danger"      Color="#F07067"/>
+            <SolidColorBrush x:Key="DangerSoft"  Color="#3A1C1A"/>
+            <SolidColorBrush x:Key="TealInk"     Color="#46C0B2"/>
+            <SolidColorBrush x:Key="TealSoft"    Color="#11302D"/>
+            <SolidColorBrush x:Key="TealLine"    Color="#1F4A45"/>
+            <SolidColorBrush x:Key="Solid"       Color="#2E3138"/>
+            <SolidColorBrush x:Key="OnSolid"     Color="#E6E8EB"/>
 
-            <SolidColorBrush x:Key="TextPrimary" Color="#ECECEC"/>
-            <SolidColorBrush x:Key="TextSecondary" Color="#9B9B9B"/>
-            <SolidColorBrush x:Key="TextTertiary" Color="#6E6E6E"/>
+            <!-- Legacy aliases (mapped onto tokens above) -->
+            <SolidColorBrush x:Key="BgApp"        Color="#131417"/>
+            <SolidColorBrush x:Key="BgSidebar"    Color="#1C1E22"/>
+            <SolidColorBrush x:Key="BgHover"      Color="#23262B"/>
+            <SolidColorBrush x:Key="BgActive"     Color="#1C2A44"/>
+            <SolidColorBrush x:Key="BgComposer"   Color="#131417"/>
+            <SolidColorBrush x:Key="BgElevated"   Color="#1C1E22"/>
+            <SolidColorBrush x:Key="BgChip"       Color="#1C1E22"/>
 
-            <SolidColorBrush x:Key="Accent" Color="#A78BFA"/>
-            <SolidColorBrush x:Key="AccentSoft" Color="#2E2A40"/>
+            <SolidColorBrush x:Key="BorderSubtle" Color="#2A2D33"/>
+            <SolidColorBrush x:Key="BorderDefault" Color="#2A2D33"/>
+            <SolidColorBrush x:Key="BorderStrong" Color="#3A3E46"/>
 
-            <SolidColorBrush x:Key="IconBrush" Color="#B4B4B4"/>
-            <SolidColorBrush x:Key="IconActive" Color="#ECECEC"/>
+            <SolidColorBrush x:Key="TextPrimary"   Color="#E6E8EB"/>
+            <SolidColorBrush x:Key="TextSecondary" Color="#9AA1AB"/>
+            <SolidColorBrush x:Key="TextTertiary"  Color="#62686F"/>
 
-            <SolidColorBrush x:Key="SendBg" Color="#ECECEC"/>
-            <SolidColorBrush x:Key="SendFg" Color="#1A1A1A"/>
+            <SolidColorBrush x:Key="IconBrush"  Color="#9AA1AB"/>
+            <SolidColorBrush x:Key="IconActive" Color="#E6E8EB"/>
 
-            <SolidColorBrush x:Key="SkillActiveBg" Color="#2E2A40"/>
-            <SolidColorBrush x:Key="SkillActiveBorder" Color="#A78BFA"/>
-            <SolidColorBrush x:Key="SkillActiveText" Color="#C9BCFF"/>
+            <SolidColorBrush x:Key="SendBg" Color="#4C8DFF"/>
+            <SolidColorBrush x:Key="SendFg" Color="#FFFFFF"/>
 
-            <SolidColorBrush x:Key="SuccessDot" Color="#19C37D"/>
-            <SolidColorBrush x:Key="DangerText" Color="#F2555A"/>
+            <SolidColorBrush x:Key="SkillActiveBg"     Color="#1C2A44"/>
+            <SolidColorBrush x:Key="SkillActiveBorder" Color="#4C8DFF"/>
+            <SolidColorBrush x:Key="SkillActiveText"   Color="#9EC1FF"/>
 
-            <SolidColorBrush x:Key="CodeBg" Color="#1E1E1E"/>
-            <SolidColorBrush x:Key="CodeText" Color="#C9BCFF"/>
+            <SolidColorBrush x:Key="SuccessDot" Color="#58B07F"/>
+            <SolidColorBrush x:Key="DangerText" Color="#F07067"/>
+
+            <SolidColorBrush x:Key="CodeBg"   Color="#131417"/>
+            <SolidColorBrush x:Key="CodeText" Color="#9EC1FF"/>
         </ResourceDictionary>
 
     </ResourceDictionary.ThemeDictionaries>
 
     <!-- ===================== SHARED ===================== -->
     <FontFamily x:Key="UiFont">Inter,Segoe UI,-apple-system,sans-serif</FontFamily>
-    <FontFamily x:Key="MonoFont">JetBrains Mono,Cascadia Code,Menlo,Consolas,monospace</FontFamily>
+    <FontFamily x:Key="MonoFont">JetBrains Mono,SF Mono,Cascadia Code,Menlo,Consolas,monospace</FontFamily>
+
+    <!-- Corner radius tokens (OpenWorker uses 14px cards / rounded-xl2) -->
+    <CornerRadius x:Key="RadCard">14</CornerRadius>
+    <CornerRadius x:Key="RadControl">10</CornerRadius>
+    <CornerRadius x:Key="RadPill">999</CornerRadius>
 
 </ResourceDictionary>
